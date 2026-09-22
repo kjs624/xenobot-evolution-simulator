@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>제노봇 진화 시뮬레이터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E8EEED; --panel:#F5F8F7; --ink:#14262E; --muted:#526870; --line:#C3D0D0;
+  --skin:#7DB48C; --muscle:#C8405F; --empty:#D9E3E2;
+  --accent:#1D5E79; --accent-ink:#FFFFFF; --best:#D9A21B;
+  --s0:#74858B; --s1:#2E6FA6; --s2:#2E8B57; --s3:#7B5EA7; --s4:#C8641F; --s5:#1F8A8A;
+  --serif:"Gowun Batang","Nanum Myeongjo","Apple SD Gothic Neo",serif;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1B20; --panel:#16262C; --ink:#E4EEEE; --muted:#93A9AF; --line:#2B3F46;
+    --skin:#5E9E73; --muscle:#E0607D; --empty:#21343B;
+    --accent:#6FB7D1; --accent-ink:#0F1B20; --best:#E8B33F;
+    --s0:#9AA9AE; --s1:#5FA3DB; --s2:#56B57F; --s3:#A48BD1; --s4:#E58A45; --s5:#4FC0C0;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1B20; --panel:#16262C; --ink:#E4EEEE; --muted:#93A9AF; --line:#2B3F46;
+  --skin:#5E9E73; --muscle:#E0607D; --empty:#21343B;
+  --accent:#6FB7D1; --accent-ink:#0F1B20; --best:#E8B33F;
+  --s0:#9AA9AE; --s1:#5FA3DB; --s2:#56B57F; --s3:#A48BD1; --s4:#E58A45; --s5:#4FC0C0;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--sans);-webkit-text-size-adjust:100%}
+.wrap{max-width:1120px;margin:0 auto;padding:32px 20px 64px}
+
+header h1{font:700 clamp(28px,4.6vw,44px)/1.2 var(--serif);letter-spacing:-.01em;margin:0 0 14px}
+header p{max-width:62ch;margin:0;color:var(--muted)}
+
+.layout{display:grid;grid-template-columns:288px minmax(0,1fr);gap:44px;margin-top:36px;align-items:start}
+.controls{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);max-height:calc(100vh - 32px);overflow-y:auto;padding-right:4px}
+.main{min-width:0}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr;gap:28px}
+  .controls{position:static;max-height:none;overflow:visible;padding-right:0}
+}
+
+h2{font:700 21px/1.35 var(--serif);margin:0 0 4px}
+.sub{margin:0 0 14px;color:var(--muted);font-size:14.5px;max-width:64ch}
+section{margin:0 0 48px}
+
+/* 조작 */
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 22px}
+.btn{font:600 15px/1 var(--sans);padding:13px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;min-height:44px}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn.primary{grid-column:1/-1;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-size:16px}
+.btn.primary:hover:not(:disabled){filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+:where(button,input,summary):focus-visible{outline:3px solid var(--best);outline-offset:2px}
+
+details.settings>summary{cursor:pointer;font:700 17px/1.4 var(--serif);margin:0 0 14px;list-style:none;padding:2px 0}
+details.settings>summary::-webkit-details-marker{display:none}
+details.settings>summary::after{content:"접기";float:right;font:400 13px/1.9 var(--sans);color:var(--muted)}
+details.settings:not([open])>summary::after{content:"펼치기"}
+.ctl{margin:0 0 18px}
+.ctl .chk{display:flex;gap:8px;align-items:flex-start;font-weight:500;font-size:14px;line-height:1.5;margin-top:6px}
+.ctl .chk input{margin-top:3px;accent-color:var(--accent)}
+.ctl .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ctl label{font-weight:600;font-size:15px}
+.ctl output{font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.ctl input[type=range]{width:100%;margin:8px 0 2px;accent-color:var(--accent)}
+.ctl input[type=number],.field input[type=text],.field input[type=number]{width:100%;font:400 15px/1.4 var(--sans);padding:9px 10px;margin-top:6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.ctl small,.field small{display:block;color:var(--muted);font-size:13px;line-height:1.5;margin-top:2px}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 0;padding:14px 0 0;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:3px}
+.legend i.ring{background:transparent;border:2px solid var(--best);border-radius:3px}
+
+/* 몸 크기 */
+.sizectl{margin:0 0 22px}
+.sizectl .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 8px}
+.sizectl .lbl{font-weight:600;font-size:15px}
+.sizectl .val{font-weight:600;color:var(--accent);font-size:14px;font-variant-numeric:tabular-nums}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.segbtn{font:600 15px/1 var(--sans);padding:12px 8px;min-height:44px;border:0;border-left:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
+.segbtn:first-child{border-left:0}
+.segbtn:hover:not(:disabled){background:var(--empty)}
+.segbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.segbtn:disabled{opacity:.5;cursor:not-allowed}
+.sizectl small{display:block;color:var(--muted);font-size:13px;line-height:1.5;margin-top:8px}
+
+/* 세대 조정 */
+.btns .wide{grid-column:1/-1}
+.tgt{margin:0 0 22px}
+.tgt .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tgt label{font-weight:600;font-size:15px}
+.tgt input[type=number]{width:88px;font:600 15px/1.4 var(--sans);padding:7px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.tgt input[type=range]{width:100%;margin:10px 0 8px;accent-color:var(--accent)}
+.tgt small{display:block;color:var(--muted);font-size:13px;line-height:1.5;margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 13.5px/1 var(--sans);padding:8px 13px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;min-height:36px;font-variant-numeric:tabular-nums}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.viewctl{margin:0 0 14px}
+.viewctl .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.viewctl label{font-weight:600;font-size:15px}
+.viewctl output{font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.viewctl input[type=range]{width:100%;margin:8px 0 10px;accent-color:var(--accent)}
+.viewbtns{display:flex;flex-wrap:wrap;gap:8px}
+.viewbtns .btn{padding:10px 14px;font-size:14px;min-height:40px}
+
+/* 시각화 */
+canvas{display:block;width:100%}
+.dish{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}
+.cap{margin:10px 0 0;min-height:1.65em;font-size:14px;color:var(--muted)}
+.plot{border-bottom:1px solid var(--line);padding-bottom:6px}
+.lg{display:inline-flex;align-items:center;gap:6px;margin-right:16px;font-size:14px;color:var(--muted)}
+.lg i{display:inline-block;width:18px;height:0;border-top:3px solid}
+.lg i.dash{border-top-style:dashed;border-top-width:2px}
+.lgrow{margin:0 0 6px}
+.stats{display:flex;flex-wrap:wrap;gap:6px 32px;margin:14px 0 0}
+.stats div{min-width:64px}
+.stats dt{font-size:13px;color:var(--muted)}
+.stats dd{margin:0;font:700 22px/1.3 var(--serif);font-variant-numeric:tabular-nums}
+.race{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 8px}
+.row-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:12px 0 0}
+.row-actions .btn{padding:11px 18px}
+.note{margin:0;font-size:14.5px;color:var(--muted)}
+
+/* 비교 실험 */
+.formgrid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:14px;align-items:end;margin:0 0 14px}
+.field label{font-weight:600;font-size:15px}
+@media (max-width:640px){.formgrid{grid-template-columns:1fr 1fr}.formgrid .field:first-child{grid-column:1/-1}}
+progress{width:100%;height:8px;accent-color:var(--accent);margin:0 0 6px}
+.tablewrap{overflow-x:auto;margin:14px 0 0}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;color:var(--muted);font-size:13.5px}
+.findings{margin:14px 0 0;padding-left:1.2em;font-size:15px}
+.findings li{margin:0 0 4px}
+.err{color:var(--muscle);font-weight:500}
+
+/* 규칙 */
+.rules ol,.rules ul{margin:0 0 14px;padding-left:1.3em;max-width:66ch}
+.rules li{margin:0 0 6px}
+.rules h3{font:700 16px/1.4 var(--sans);margin:18px 0 6px}
+.foot{font-size:13.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:8px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>제노봇을 닮은 로봇, 진화시켜 보기</h1>
+    <p><span id="introSize">5×5</span> 격자의 세포로 이루어진 가상 로봇 집단이 “오른쪽으로 빨리 가기”를 목표로 세대를 거듭하며 변합니다. 돌연변이율을 바꿔 가며 진화가 어떻게 달라지는지 확인해 보세요.</p>
+  </header>
+
+  <div class="layout">
+    <aside class="controls" aria-label="시뮬레이션 설정">
+      <div class="btns">
+        <button id="btnRun" class="btn primary" type="button">진화 시작</button>
+        <button id="btnStep" class="btn" type="button">한 세대 진행</button>
+        <button id="btnReset" class="btn" type="button">초기화</button>
+        <button id="btnAdv10" class="btn" type="button">10세대 진행</button>
+        <button id="btnAdv50" class="btn" type="button">50세대 진행</button>
+      </div>
+
+      <div class="sizectl" role="group" aria-labelledby="sizeLbl">
+        <div class="row"><span id="sizeLbl" class="lbl">몸 크기</span><span id="sizeOut" class="val">5×5 (25칸)</span></div>
+        <div class="seg">
+          <button class="segbtn" type="button" data-n="5" aria-pressed="true">5×5</button>
+          <button class="segbtn" type="button" data-n="6" aria-pressed="false">6×6</button>
+          <button class="segbtn" type="button" data-n="7" aria-pressed="false">7×7</button>
+        </div>
+        <small id="sizeNote"></small>
+      </div>
+
+      <div class="tgt">
+        <div class="row">
+          <label for="target">목표 세대</label>
+          <span><input id="target" type="number" min="2" max="1000" step="1" value="100" inputmode="numeric"> 세대</span>
+        </div>
+        <input id="targetRange" type="range" min="10" max="500" step="10" value="100" aria-label="목표 세대 슬라이더">
+        <div class="chips" role="group" aria-label="목표 세대 빠른 선택">
+          <button class="chip" type="button" data-target="50" aria-pressed="false">50</button>
+          <button class="chip" type="button" data-target="100" aria-pressed="true">100</button>
+          <button class="chip" type="button" data-target="200" aria-pressed="false">200</button>
+          <button class="chip" type="button" data-target="500" aria-pressed="false">500</button>
+        </div>
+        <small>이 세대에 도달하면 자동으로 멈춥니다. 2에서 1000 사이로 정할 수 있어요. “10세대 진행”처럼 한꺼번에 진행하면 목표 세대가 자동으로 늘어납니다.</small>
+      </div>
+
+      <details class="settings" id="settings" open>
+        <summary>설정</summary>
+        <div class="ctl">
+          <div class="row"><label for="rate">돌연변이율</label><output id="rateOut" for="rate">5%</output></div>
+          <input id="rate" type="range" min="0" max="50" step="1" value="5">
+          <small>자손의 각 칸이 무작위로 바뀔 확률입니다.</small>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="pop">집단 크기</label><output id="popOut" for="pop">50개</output></div>
+          <input id="pop" type="range" min="10" max="100" step="10" value="50">
+          <small>한 세대에 로봇이 몇 개 있는지 정합니다.</small>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="elite">살아남는 비율</label><output id="eliteOut" for="elite">20%</output></div>
+          <input id="elite" type="range" min="5" max="50" step="5" value="20">
+          <small>점수 상위 이만큼만 다음 세대의 부모가 됩니다.</small>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="speed">진행 속도</label><output id="speedOut" for="speed">보통</output></div>
+          <input id="speed" type="range" min="0" max="4" step="1" value="2">
+        </div>
+        <div class="ctl" id="shiftCtl">
+          <div class="row"><label for="shiftOn">환경 변화 실험</label><output id="shiftOut" for="shiftOn">꺼짐</output></div>
+          <label class="chk"><input id="shiftOn" type="checkbox"> 지정한 세대에서 목표 방향을 오른쪽에서 왼쪽으로 뒤집기</label>
+          <div class="row" style="margin-top:8px"><label for="shiftGen" style="font-weight:500;font-size:14px">바뀌는 세대</label>
+            <span><input id="shiftGen" type="number" min="2" max="900" step="1" value="100" inputmode="numeric" disabled style="width:72px"> 세대</span></div>
+          <small>켜면 그 세대에서 “오른쪽으로 빨리 가기”가 “왼쪽으로 빨리 가기”로 바뀝니다. 지금까지 진화한 로봇은 새 기준에서 점수가 음수가 되고, 그 뒤 집단이 다시 적응하는 과정을 그래프로 볼 수 있어요. 켜거나 끄면 1세대부터 새로 시작합니다. 목표 세대는 바뀌는 세대보다 충분히 크게 정해 주세요.</small>
+        </div>
+        <div class="ctl">
+          <label for="seed">시드 번호</label>
+          <input id="seed" type="number" min="0" max="999999" step="1" value="2026" inputmode="numeric">
+          <small>처음 로봇 집단을 정하는 번호입니다. 같은 번호와 같은 설정이면 결과가 같아서, 보고서에 적어 두면 다시 재현할 수 있어요.</small>
+        </div>
+        <p class="note" style="margin-bottom:0">돌연변이율과 살아남는 비율은 진행 중에 바꿔도 다음 세대부터 적용됩니다. 집단 크기와 시드는 1세대에서 바꾸면 바로 반영됩니다.</p>
+
+        <div class="legend" aria-label="범례">
+          <span><i style="background:var(--skin)"></i>일반 세포(피부)</span>
+          <span><i style="background:var(--muscle)"></i>수축 세포(심근)</span>
+          <span><i style="background:var(--empty)"></i>빈칸</span>
+          <span><i class="ring"></i>다음 세대의 부모</span>
+        </div>
+      </details>
+    </aside>
+
+    <main class="main" id="main">
+      <section aria-labelledby="h-pop">
+        <h2 id="h-pop">세대별 로봇 보기</h2>
+        <p class="sub">슬라이더를 움직이면 지나온 세대의 로봇 집단을 볼 수 있어요. 1세대와 지금 세대를 비교해 보세요. 점수가 높은 순서로 왼쪽 위부터 놓이고, 수축 세포(빨강)가 세대가 지날수록 왼쪽으로 모입니다.</p>
+        <div class="viewctl">
+          <div class="row"><label for="view">보고 있는 세대</label><output id="viewOut" for="view">1 / 1세대</output></div>
+          <input id="view" type="range" min="1" max="1" step="1" value="1" disabled>
+          <div class="viewbtns">
+            <button id="btnFirst" class="btn" type="button" disabled>1세대로</button>
+            <button id="btnPrev" class="btn" type="button" disabled>이전 세대</button>
+            <button id="btnNext" class="btn" type="button" disabled>다음 세대</button>
+            <button id="btnLatest" class="btn" type="button" disabled>최신 세대로</button>
+          </div>
+        </div>
+        <div class="dish">
+          <canvas id="dish" role="img" aria-label="현재 세대의 로봇 집단"></canvas>
+        </div>
+        <p class="cap" id="dishCap"></p>
+      </section>
+
+      <section aria-labelledby="h-chart">
+        <h2 id="h-chart">세대별 이동 점수</h2>
+        <p class="lgrow">
+          <span class="lg"><i style="border-color:var(--accent)"></i>최고 점수</span>
+          <span class="lg"><i class="dash" style="border-color:var(--muted)"></i>평균 점수</span>
+        </p>
+        <div class="plot"><canvas id="chart" role="img" aria-label="세대별 최고 점수와 평균 점수 그래프"></canvas></div>
+        <dl class="stats" aria-live="off">
+          <div><dt>세대</dt><dd id="stGen">1</dd></div>
+          <div><dt>최고 점수</dt><dd id="stBest">0.00</dd></div>
+          <div><dt>평균 점수</dt><dd id="stMean">0.00</dd></div>
+          <div><dt>1세대 최고 대비</dt><dd id="stRatio">-</dd></div>
+          <div><dt id="stCeilLbl">확인된 최고점</dt><dd id="stCeil">-</dd></div>
+        </dl>
+        <p class="note" id="ceilNote" style="margin-top:8px"></p>
+        <p class="note" id="status" role="status" aria-live="polite" style="margin-top:10px"></p>
+      </section>
+
+      <section aria-labelledby="h-race">
+        <h2 id="h-race">최고 로봇 경주</h2>
+        <p class="sub">1세대 최고 로봇과 지금의 최고 로봇이 5초 동안 달립니다. 점수를 이동 속도로 가정했어요.</p>
+        <div class="race"><canvas id="race" role="img" aria-label="1세대 최고 로봇과 현재 최고 로봇의 경주"></canvas></div>
+        <div class="row-actions">
+          <button id="btnRace" class="btn" type="button">경주 시작</button>
+          <p class="note" id="raceNote"></p>
+        </div>
+      </section>
+
+      <section aria-labelledby="h-cmp">
+        <h2 id="h-cmp">돌연변이율 비교 실험</h2>
+        <p class="sub">여러 돌연변이율로 같은 실험을 반복해서 평균을 냅니다. 모든 조건이 같은 시작 집단에서 출발하므로 공정하게 비교돼요. 집단 크기, 살아남는 비율, 목표 세대는 왼쪽 설정을 따릅니다.</p>
+        <div class="formgrid">
+          <div class="field">
+            <label for="cmpRates">비교할 돌연변이율(%)</label>
+            <input id="cmpRates" type="text" value="0, 1, 5, 15, 40" inputmode="decimal" autocomplete="off">
+            <small>쉼표로 구분하고 최대 6개까지 넣을 수 있어요.</small>
+          </div>
+          <div class="field">
+            <label for="cmpTrials">조건당 반복 횟수</label>
+            <input id="cmpTrials" type="number" min="5" max="100" step="5" value="30">
+          </div>
+          <button id="btnCmp" class="btn primary" type="button" style="grid-column:auto">비교 실험 실행</button>
+        </div>
+        <progress id="cmpProg" value="0" max="1" hidden></progress>
+        <p class="note" id="cmpMsg" role="status" aria-live="polite"></p>
+        <div id="cmpOut" hidden>
+          <p class="lgrow" id="cmpLegend" style="margin-top:14px"></p>
+          <div class="plot"><canvas id="cmp" role="img" aria-label="돌연변이율별 세대에 따른 평균 최고 점수 그래프"></canvas></div>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th scope="col">돌연변이율</th><th scope="col">10세대</th><th scope="col">30세대</th><th scope="col">마지막 세대</th><th scope="col">표준편차</th></tr></thead>
+              <tbody id="cmpBody"></tbody>
+            </table>
+          </div>
+          <ul class="findings" id="cmpFind"></ul>
+        </div>
+      </section>
+
+      <section class="rules" aria-labelledby="h-rules">
+        <h2 id="h-rules">이 시뮬레이터의 규칙</h2>
+        <h3>진화가 일어나는 순서</h3>
+        <ol>
+          <li>무작위 로봇 집단을 만듭니다(1세대).</li>
+          <li>모든 로봇의 이동 점수를 계산합니다.</li>
+          <li>점수 상위 일부만 부모로 남기고 나머지는 버립니다(선택).</li>
+          <li>부모를 복사하면서 일부 칸을 무작위로 바꿔 자손을 만듭니다(유전과 변이). 그리고 2번으로 돌아갑니다.</li>
+        </ol>
+        <h3>이동 점수는 이렇게 계산해요</h3>
+        <ul>
+          <li>수축 세포가 몸의 왼쪽에 몰려 있고 일반 세포가 오른쪽에 있을수록, 왼쪽에서 밀어 오른쪽으로 나아간다고 가정해서 점수가 높아집니다.</li>
+          <li>수축 세포가 <span id="ruleCap">8</span>개보다 적으면 힘이 약해 점수가 줄고, <span id="rulePen">10</span>개를 넘으면 에너지 낭비로 감점됩니다. 이 기준은 전체 칸 수의 32%와 40%라서, 몸 크기를 바꾸면 칸 수에 비례해 늘어납니다.</li>
+          <li>몸이 여러 조각으로 흩어져 있으면 가장 큰 덩어리의 비율만큼 점수가 줄어듭니다.</li>
+        </ul>
+        <h3>환경 변화 실험</h3>
+        <ul>
+          <li>설정에서 켜면, 지정한 세대에서 목표 방향이 오른쪽에서 왼쪽으로 바뀝니다. 점수 식의 방향 부호만 뒤집는 것이라 나머지 규칙은 그대로예요.</li>
+          <li>기본 상태에서는 점수가 0 아래로 내려가지 않게 자르지만, 환경이 바뀐 뒤에는 자르지 않습니다. 자르면 집단 전체가 0점이 되어 어느 로봇이 더 나은지 구별할 수 없고, 선택이 멈추기 때문입니다.</li>
+          <li>이 실험은 “점수 식(가상 환경)이 바뀌면 이전의 적응이 무너진다”는 것을 보여 줍니다. 점수를 어떻게 정의하느냐가 결과를 좌우한다는 뜻이기도 해요.</li>
+        </ul>
+        <h3>한계</h3>
+        <ul>
+          <li>실제 제노봇 연구는 물리 엔진으로 움직임을 계산하고 수백 개의 세포를 씁니다. 이 점수 규칙은 원리를 보려고 단순하게 정한 것이라 실제 물리와 다릅니다.</li>
+          <li>무엇이 좋은 형질인지 사람이 정했다는 점에서, 이 과정은 자연선택보다 인위선택에 가깝습니다.</li>
+          <li>5×5의 최고점은 가능한 모든 경우를 계산해서 확인한 값이지만, 6×6과 7×7은 오랜 탐색으로 찾은 값이라 더 높은 설계가 있을 수도 있어요.</li>
+          <li>결과는 이 모델에서만 성립합니다. 조건 사이의 차이가 표준편차보다 작으면 우연일 수 있어요.</li>
+        </ul>
+        <p class="foot">참고: Kriegman, Blackiston, Levin, Bongard (2020). A scalable pipeline for designing reconfigurable organisms. PNAS 117(4), 1853–1859.</p>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   1. 진화 엔진 (파이썬 버전 xenobot_evolution.py 와 같은 규칙)
+   몸 = 5x5 격자, 0=빈칸 1=일반 세포 2=수축 세포
+   ============================================================ */
+var RACE_MS=5000;
+var CEIL={5:1.7302631578947367,6:2.0806451612903225,7:2.4440789473684212};   // 몸 크기별 최고점 (5x5는 전수 확인, 6x6·7x7은 탐색으로 찾은 값)
+function capOf(n){ return Math.round(0.32*n*n); }   // 힘이 최대가 되는 수축 세포 수 (5x5: 8)
+function penOf(n){ return Math.round(0.40*n*n); }   // 이보다 많으면 에너지 낭비 (5x5: 10)
+var BUF={};
+function buf(n){ return BUF[n]||(BUF[n]={vis:new Uint8Array(n*n),stack:new Int16Array(n*n)}); }
+function sizeOf(b){ return Math.round(Math.sqrt(b.length)); }
+
+function mulberry32(a){
+  return function(){
+    a|=0; a=a+0x6D2B79F5|0;
+    var t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;
+  };
+}
+
+function randomRobot(rng,n){
+  var cells=n*n, b=new Uint8Array(cells);
+  for(var i=0;i<cells;i++){
+    var r=rng();
+    b[i]= r<0.3 ? 0 : (r<0.7 ? 1 : 2);
+  }
+  return b;
+}
+
+function largest(b){
+  var N=sizeOf(b), CELLS=b.length, B=buf(N), vis=B.vis, stack=B.stack;
+  vis.fill(0);
+  var best=0;
+  for(var i=0;i<CELLS;i++){
+    if(b[i]&&!vis[i]){
+      var sp=0,size=0;
+      stack[sp++]=i; vis[i]=1;
+      while(sp){
+        var k=stack[--sp]; size++;
+        var x=k%N, y=(k-x)/N, j;
+        if(x>0){ j=k-1; if(b[j]&&!vis[j]){vis[j]=1;stack[sp++]=j;} }
+        if(x<N-1){ j=k+1; if(b[j]&&!vis[j]){vis[j]=1;stack[sp++]=j;} }
+        if(y>0){ j=k-N; if(b[j]&&!vis[j]){vis[j]=1;stack[sp++]=j;} }
+        if(y<N-1){ j=k+N; if(b[j]&&!vis[j]){vis[j]=1;stack[sp++]=j;} }
+      }
+      if(size>best) best=size;
+    }
+  }
+  return best;
+}
+
+function analyze(b,dir){
+  dir=(dir===-1)?-1:1;                     // 1: 오른쪽으로 가는 것이 목표(기본), -1: 왼쪽으로 가는 것이 목표(환경 변화 이후)
+  var N=sizeOf(b), CELLS=b.length, cap=capOf(N), pen=penOf(N);
+  var total=0, muscle=0, sb=0, sm=0;
+  for(var i=0;i<CELLS;i++){
+    var v=b[i];
+    if(v){ total++; var x=i%N; sb+=x; if(v===2){ muscle++; sm+=x; } }
+  }
+  if(!total||!muscle){
+    return {score:0,total:total,muscle:muscle,conn:total?largest(b)/total:0};
+  }
+  var thrust=dir*(sb/total - sm/muscle)*Math.min(muscle,cap)/cap;
+  var penalty=0.03*Math.max(0,muscle-pen);
+  var conn=largest(b)/total;
+  var raw=thrust*conn-penalty;
+  // 기본(dir=1)에서는 예전과 같이 0 밑으로 내려가지 않게 자른다.
+  // 환경이 바뀐 뒤(dir=-1)에는 자르지 않는다. 자르면 집단 전체가 0점이 되어 선택할 근거가 사라지기 때문이다.
+  return {score:(dir===1?Math.max(raw,0):raw),total:total,muscle:muscle,conn:conn};
+}
+function fitness(b,dir){ return analyze(b,dir).score; }
+
+function mutate(b,rate,rng){
+  var c=b.slice();
+  for(var i=0;i<c.length;i++){
+    if(rng()<rate) c[i]=Math.floor(rng()*3);
+  }
+  return c;
+}
+
+function Sim(p,seed,keep){
+  this.p=p;
+  this.n=p.n||5;                          // 몸 크기 (n x n)
+  this.rng=mulberry32(seed);
+  this.dir=1;                             // 현재 목표 방향 (1: 오른쪽, -1: 왼쪽)
+  this.shiftAt=p.shiftAt||0;              // 환경이 바뀌는 세대 (0이면 바뀌지 않음)
+  this.gen=1;
+  this.hist=keep?[]:null;                 // 세대별 집단 기록(지난 세대 보기용)
+  this.best=[]; this.mean=[]; this.pop=[];
+  for(var i=0;i<p.pop;i++){
+    var b=randomRobot(this.rng,this.n);
+    this.pop.push({b:b,s:fitness(b)});
+  }
+  this.record();
+  this.first=this.pop[0];
+}
+Sim.prototype.record=function(){
+  this.pop.sort(function(a,b){return b.s-a.s;});
+  var sum=0;
+  for(var i=0;i<this.pop.length;i++) sum+=this.pop[i].s;
+  this.best.push(this.pop[0].s);
+  this.mean.push(sum/this.pop.length);
+  if(this.hist) this.hist.push(this.pop.slice());
+};
+Sim.prototype.nElite=function(){
+  return Math.max(2,Math.floor(this.p.pop*this.p.elite));
+};
+Sim.prototype.flip=function(){
+  // 환경 변화: 목표 방향을 뒤집고 지금 집단 전체를 새 기준으로 다시 채점한다.
+  this.dir=-this.dir;
+  for(var i=0;i<this.pop.length;i++) this.pop[i].s=fitness(this.pop[i].b,this.dir);
+  this.pop.sort(function(a,b){return b.s-a.s;});
+  this.flipped=this.gen;                   // 몇 세대에서 바뀌었는지 기록
+};
+Sim.prototype.step=function(){
+  if(this.shiftAt>0 && this.gen===this.shiftAt && !this.flipped){
+    this.flip();
+    this.best[this.best.length-1]=this.pop[0].s;     // 뒤집힌 뒤의 점수로 이 세대 기록을 바로잡는다
+    var sum0=0; for(var q=0;q<this.pop.length;q++) sum0+=this.pop[q].s;
+    this.mean[this.mean.length-1]=sum0/this.pop.length;
+    if(this.hist) this.hist[this.hist.length-1]=this.pop.slice();
+  }
+  var ne=Math.min(this.nElite(),this.pop.length);
+  var parents=this.pop.slice(0,ne);
+  var next=parents.slice();               // 살아남은 부모는 그대로 다음 세대로
+  while(next.length<this.p.pop){
+    var par=parents[Math.floor(this.rng()*ne)];
+    var b=mutate(par.b,this.p.rate,this.rng);
+    next.push({b:b,s:fitness(b,this.dir)});
+  }
+  this.pop=next;
+  this.gen++;
+  this.record();
+};
+
+if(window.__XENO_TEST__) window.__XENO_TEST__.api={Sim:Sim,analyze:analyze,fitness:fitness,CEIL:CEIL,capOf:capOf,penOf:penOf};
+
+/* ============================================================
+   2. 화면 상태
+   ============================================================ */
+function $(id){return document.getElementById(id);}
+var P={rate:0.05,pop:50,elite:0.2,target:100,n:5,shiftAt:0};   // shiftAt: 환경이 바뀌는 세대(0이면 바뀌지 않음)
+var MAXG=1000, MING=2, CMP_MAX=500;
+var viewGen=null;            // null이면 최신 세대를 보는 중, 숫자면 지난 세대를 보는 중
+var targetWarn=false;
+var SPEEDS=[2,5,10,20,60], SPEED_LABELS=['아주 느리게','느리게','보통','빠르게','아주 빠르게'];
+var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var sim=null, running=false, lastTs=null, acc=0;
+var race={frac:0,running:false,now:0};
+var cmp=null, cmpBusy=false;
+var dishLayout=null;
+
+function seedValue(){
+  var v=parseInt($('seed').value,10);
+  return (isFinite(v)&&v>=0)?v:2026;
+}
+function vg(){ return viewGen===null ? sim.gen : viewGen; }
+function viewPop(){ return sim.hist[vg()-1]; }
+function resetSim(){
+  sim=new Sim(P,seedValue(),true);
+  viewGen=null;
+  resetRace();
+  setStatus('');
+  render();
+}
+
+/* ============================================================
+   3. 그리기 도구
+   ============================================================ */
+var FONT='"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif';
+function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function colors(){
+  return {ink:cssv('--ink'),muted:cssv('--muted'),line:cssv('--line'),skin:cssv('--skin'),
+    muscle:cssv('--muscle'),empty:cssv('--empty'),accent:cssv('--accent'),best:cssv('--best'),
+    panel:cssv('--panel'),s:[0,1,2,3,4,5].map(function(i){return cssv('--s'+i);})};
+}
+function prep(cv,h){
+  var w=Math.floor(cv.getBoundingClientRect().width);
+  if(!w) return null;
+  var dpr=Math.min(window.devicePixelRatio||1,3);
+  cv.style.height=h+'px';
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+  var ctx=cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+  return {ctx:ctx,w:w,h:h};
+}
+
+function chart(cv,opt){
+  var g=prep(cv,opt.height); if(!g) return;
+  var ctx=g.ctx,w=g.w,h=g.h,c=colors();
+  var m={l:46,r:12,t:10,b:38}, pw=w-m.l-m.r, ph=h-m.t-m.b;
+  var xMax=Math.max(2,opt.xMax), yMax=opt.yMax, yMin=opt.yMin||0;   // yMin: 환경 변화 뒤 음수 점수를 그리기 위한 아래쪽 한계
+  function X(gen){return m.l+(gen-1)/(xMax-1)*pw;}
+  function Y(v){return m.t+ph-(Math.max(yMin,Math.min(v,yMax))-yMin)/(yMax-yMin)*ph;}
+  ctx.font='400 12px '+FONT; ctx.textBaseline='middle'; ctx.lineWidth=1;
+  // 가로 눈금
+  ctx.textAlign='right';
+  for(var v=yMin;v<=yMax+1e-9;v+=0.5){
+    ctx.strokeStyle=c.line; ctx.beginPath(); ctx.moveTo(m.l,Y(v)); ctx.lineTo(w-m.r,Y(v)); ctx.stroke();
+    ctx.fillStyle=c.muted; ctx.fillText(v.toFixed(1),m.l-8,Y(v));
+  }
+  // 세로 눈금
+  var steps=[5,10,20,25,50,100,200,500], step=steps[steps.length-1];
+  for(var s=0;s<steps.length;s++){ if(xMax/steps[s]<=6){ step=steps[s]; break; } }
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for(var t=step;t<=xMax;t+=step){
+    ctx.fillStyle=c.muted; ctx.fillText(String(t),X(t),m.t+ph+7);
+  }
+  ctx.fillText('세대',m.l+pw/2,h-16);
+  ctx.save(); ctx.translate(12,m.t+ph/2); ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('이동 점수',0,0); ctx.restore();
+  // 데이터
+  var seriesList=opt.series;
+  seriesList.forEach(function(sr){
+    var d=sr.data; if(!d.length) return;
+    if(sr.band){
+      ctx.globalAlpha=0.13; ctx.fillStyle=sr.color; ctx.beginPath();
+      for(var i=0;i<d.length;i++){ var yy=Y(d[i]+sr.band[i]); if(i===0) ctx.moveTo(X(i+1),yy); else ctx.lineTo(X(i+1),yy); }
+      for(var j=d.length-1;j>=0;j--) ctx.lineTo(X(j+1),Y(d[j]-sr.band[j]));
+      ctx.closePath(); ctx.fill(); ctx.globalAlpha=1;
+    }
+    ctx.strokeStyle=sr.color; ctx.lineWidth=sr.width||2; ctx.lineJoin='round';
+    ctx.setLineDash(sr.dash||[]); ctx.beginPath();
+    for(var k=0;k<d.length;k++){ if(k===0) ctx.moveTo(X(k+1),Y(d[k])); else ctx.lineTo(X(k+1),Y(d[k])); }
+    ctx.stroke(); ctx.setLineDash([]);
+  });
+  if(opt.shiftAt && opt.shiftAt<=xMax){
+    // 환경이 바뀐 세대: 세로 점선 + 라벨
+    var sx=X(opt.shiftAt);
+    ctx.strokeStyle=c.muscle; ctx.lineWidth=1.8; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(sx,m.t); ctx.lineTo(sx,m.t+ph); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=c.muscle; ctx.font='600 12px '+FONT; ctx.textBaseline='bottom';
+    ctx.textAlign= opt.shiftAt>xMax*0.8 ? 'right' : 'left';
+    ctx.fillText('환경 변화', sx+(opt.shiftAt>xMax*0.8?-5:5), m.t+ph-4);
+  }
+  if(opt.marker){
+    var mx=X(opt.marker);
+    ctx.strokeStyle=c.best; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(mx,m.t); ctx.lineTo(mx,m.t+ph); ctx.stroke();
+    ctx.fillStyle=c.ink; ctx.font='600 12px '+FONT; ctx.textBaseline='top';
+    ctx.textAlign= opt.marker>xMax*0.85 ? 'right' : 'left';
+    ctx.fillText(opt.marker+'세대', mx+(opt.marker>xMax*0.85?-6:6), m.t+4);
+  }
+}
+
+/* 로봇 한 마리 그리기 */
+function drawRobot(ctx,b,x0,y0,size,c,wobble){
+  var N=sizeOf(b), CELLS=b.length, cell=size/N;
+  for(var k=0;k<CELLS;k++){
+    var cx=k%N, cy=(k-cx)/N, v=b[k];
+    ctx.fillStyle= v===2?c.muscle:(v===1?c.skin:c.empty);
+    if(wobble&&v===2) ctx.globalAlpha=0.7+0.3*Math.sin(race.now/110+cx*0.9);
+    ctx.fillRect(x0+cx*cell,y0+cy*cell,cell-0.6,cell-0.6);
+    if(wobble&&v===2) ctx.globalAlpha=1;
+  }
+}
+
+/* ============================================================
+   4. 화면 갱신
+   ============================================================ */
+function drawDish(){
+  var cv=$('dish'), pop=viewPop(), n=pop.length;
+  var W=Math.floor(cv.getBoundingClientRect().width); if(!W) return;
+  var cols=W<520?8:10, gap=6, pad=4;
+  var rs=(W-2*pad-(cols-1)*gap)/cols;
+  var rows=Math.ceil(n/cols);
+  var H=Math.ceil(2*pad+rows*rs+(rows-1)*gap);
+  var g=prep(cv,H); if(!g) return;
+  var ctx=g.ctx, c=colors(), ne=Math.min(sim.nElite(),n);
+  dishLayout={cols:cols,gap:gap,pad:pad,rs:rs,n:n};
+  for(var i=0;i<n;i++){
+    var col=i%cols,row=Math.floor(i/cols);
+    var x0=pad+col*(rs+gap), y0=pad+row*(rs+gap);
+    drawRobot(ctx,pop[i].b,x0,y0,rs,c,false);
+    if(i<ne){
+      ctx.strokeStyle=c.best; ctx.lineWidth=i===0?3:2;
+      ctx.strokeRect(x0-2,y0-2,rs+4,rs+4);
+    }
+  }
+}
+
+function yMaxFor(n,vals){
+  var top=Math.max(2,Math.ceil(CEIL[n]*1.1*2)/2);
+  if(vals){ for(var i=0;i<vals.length;i++){ var need=Math.ceil(vals[i]*2)/2; if(need>top) top=need; } }
+  return top;
+}
+function drawMain(){
+  var c=colors();
+  var lo=0; for(var q=0;q<sim.best.length;q++){ if(sim.best[q]<lo) lo=sim.best[q]; }
+  for(var q2=0;q2<sim.mean.length;q2++){ if(sim.mean[q2]<lo) lo=sim.mean[q2]; }
+  lo = lo<0 ? Math.floor(lo*2)/2 : 0;                    // 음수 점수가 나온 경우에만 그래프 아래쪽을 늘린다
+  chart($('chart'),{height:270,xMax:Math.max(P.target,sim.gen),yMax:yMaxFor(sim.n,sim.best),yMin:lo,marker:viewGen,shiftAt:(sim.flipped||0),series:[
+    {data:sim.mean,color:c.muted,width:2,dash:[6,4]},
+    {data:sim.best,color:c.accent,width:3}
+  ]});
+}
+
+function fmt(v){return v.toFixed(2);}
+function updateStats(){
+  var i=vg()-1, b=sim.best[i], m=sim.mean[i], f=sim.first.s;
+  $('stGen').textContent=vg();
+  $('stCeil').textContent=fmt(CEIL[sim.n]);
+  $('stBest').textContent=fmt(b);
+  $('stMean').textContent=fmt(m);
+  $('stRatio').textContent= (f>0.01 && b>=0) ? ('×'+(b/f).toFixed(1)) : '-';
+}
+
+function drawRace(){
+  var cv=$('race'), g=prep(cv,150); if(!g) return;
+  var ctx=g.ctx, w=g.w, h=g.h, c=colors();
+  var lanes=[{label:'1세대 최고',r:sim.first},{label:(viewGen!==null?viewGen+'세대 최고':'지금 최고'),r:viewPop()[0]}];
+  var rs=44, padX=14, laneH=75, track=w-2*padX-rs;
+  ctx.strokeStyle=c.line; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(w-padX,6); ctx.lineTo(w-padX,h-6); ctx.stroke(); ctx.setLineDash([]);
+  lanes.forEach(function(ln,i){
+    var y=i*laneH;
+    ctx.fillStyle=c.muted; ctx.font='500 13px '+FONT; ctx.textAlign='left'; ctx.textBaseline='top';
+    ctx.fillText(ln.label+'  점수 '+fmt(ln.r.s),padX,y+6);
+    var ry=y+24;
+    ctx.strokeStyle=c.line; ctx.beginPath(); ctx.moveTo(padX,ry+rs+2.5); ctx.lineTo(w-padX,ry+rs+2.5); ctx.stroke();
+    var frac=Math.min(1,race.frac*(Math.max(0,ln.r.s)/(CEIL[sim.n]*1.04)));   // 음수 점수(환경 변화 뒤)는 제자리로 그린다
+    drawRobot(ctx,ln.r.b,padX+track*frac,ry,rs,c,race.running);
+  });
+}
+
+function updateViewControls(){
+  var v=$('view'), g=sim.gen, cur=vg();
+  v.max=g; v.value=cur; v.disabled=(g<2);
+  $('viewOut').textContent=cur+' / '+g+'세대'+(viewGen!==null?' (지난 세대)':'');
+  $('btnFirst').disabled=(g<2||cur<=1);
+  $('btnPrev').disabled=(g<2||cur<=1);
+  $('btnNext').disabled=(cur>=g);
+  $('btnLatest').disabled=(cur>=g);
+}
+function render(){
+  drawDish(); drawMain(); updateStats(); drawRace(); drawCompare(); updateViewControls();
+}
+
+/* ============================================================
+   5. 진행 / 정지
+   ============================================================ */
+function setStatus(t){ $('status').textContent=t; }
+function setRunLabel(){
+  $('btnRun').textContent= running ? '일시정지' : (sim.gen>=P.target ? '새 시드로 다시 진화' : (sim.gen>1 ? '이어서 진화' : '진화 시작'));
+}
+function setRunning(on){ running=on; setRunLabel(); }
+function stepOnce(){
+  viewGen=null;
+  resetRace();
+  sim.step();
+}
+
+/* 목표 세대 / 한꺼번에 진행 / 지난 세대 보기 */
+function setTarget(v,quiet){
+  v=Math.max(MING,Math.min(MAXG,Math.round(v)));
+  P.target=v;
+  $('target').value=v;
+  $('targetRange').value=Math.max(10,Math.min(500,v));
+  var chips=document.querySelectorAll('.chip');
+  for(var i=0;i<chips.length;i++) chips[i].setAttribute('aria-pressed',String(+chips[i].getAttribute('data-target')===v));
+  setRunLabel(); drawMain();
+  if(!quiet){
+    if(v<=sim.gen){
+      setStatus('지금 '+sim.gen+'세대라서 목표 '+v+'세대는 이미 지났어요. 이어서 진화하려면 목표 세대를 더 크게 정해 주세요.');
+      targetWarn=true;
+    } else if(targetWarn){ setStatus(''); targetWarn=false; }
+  }
+}
+var SPACE={5:'8.5×10¹¹',6:'1.5×10¹⁷',7:'2.4×10²³'};
+function updateSizeUI(){
+  var n=P.n;
+  var segs=document.querySelectorAll('.segbtn');
+  for(var i=0;i<segs.length;i++) segs[i].setAttribute('aria-pressed',String(+segs[i].getAttribute('data-n')===n));
+  $('sizeOut').textContent=n+'×'+n+' ('+(n*n)+'칸)';
+  $('sizeNote').textContent='크기를 바꾸면 1세대부터 새로 시작해요. 가능한 몸 모양은 약 '+SPACE[n]+'가지(칸마다 3가지 상태)라서, 칸이 늘수록 진화에 시간이 더 걸립니다.';
+  $('introSize').textContent=n+'×'+n;
+  $('ruleCap').textContent=capOf(n); $('rulePen').textContent=penOf(n);
+  $('stCeilLbl').textContent= n===5 ? '최고점(전수 확인)' : '찾은 최고점';
+  $('ceilNote').textContent= n===5
+    ? '5×5의 최고점 '+fmt(CEIL[5])+'은 가능한 모든 경우를 계산해서 확인한 값이에요. 진화가 이 점수에 도달하면 더 이상 오르지 않습니다.'
+    : n+'×'+n+'의 최고점 '+fmt(CEIL[n])+'은 오랜 탐색으로 찾은 값이에요. 더 높은 설계가 있을 수도 있습니다.';
+}
+function setSize(n){
+  if(cmpBusy||n===P.n) return;
+  pause();
+  P.n=n; targetWarn=false;
+  cmp=null; $('cmpOut').hidden=true; $('cmpMsg').textContent='';
+  updateSizeUI();
+  resetSim(); setRunning(false);
+  setStatus('몸 크기를 '+n+'×'+n+'로 바꿔서 1세대부터 새로 시작했어요.');
+}
+function advance(n){
+  if(running) pause();
+  if(sim.gen>=MAXG){ setStatus('최대 '+MAXG+'세대까지만 진행할 수 있어요. 초기화하고 다시 시작해 주세요.'); return; }
+  var goal=Math.min(MAXG,sim.gen+n), raised=false;
+  if(goal>P.target){ setTarget(goal,true); raised=true; }
+  while(sim.gen<goal) sim.step();
+  viewGen=null; targetWarn=false; resetRace(); render(); setRunLabel();
+  setStatus(n+'세대를 진행해서 '+sim.gen+'세대가 되었어요.'+(raised?' 목표 세대도 '+goal+'세대로 늘렸어요.':''));
+}
+function setView(g){
+  if(running) pause();
+  g=Math.max(1,Math.min(sim.gen,Math.round(g)));
+  viewGen=(g>=sim.gen)?null:g;
+  resetRace(); render();
+}
+function loop(ts){
+  if(!running) return;
+  if(lastTs===null){ lastTs=ts; requestAnimationFrame(loop); return; }
+  acc=Math.min(acc+(ts-lastTs)/1000*SPEEDS[+$('speed').value],6);
+  lastTs=ts;
+  var steps=Math.floor(acc);
+  if(steps>0){
+    acc-=steps;
+    for(var i=0;i<steps&&sim.gen<P.target;i++) stepOnce();
+    render();
+    if(sim.gen>=P.target){ finish(); return; }
+  }
+  requestAnimationFrame(loop);
+}
+function finish(){
+  setRunning(false);
+  var top=sim.best[sim.best.length-1];
+  if(sim.flipped){
+    setStatus(sim.gen+'세대에 도달해서 멈췄어요. '+sim.flipped+'세대에서 목표가 왼쪽으로 바뀐 뒤 최고 점수는 '+fmt(sim.best[sim.flipped-1])+'점(음수)에서 '+fmt(top)+'점까지 회복했습니다.'+
+      (top>=CEIL[sim.n]-1e-9 ? ' 바뀐 목표에서도 확인된 최고점에 도달했어요.' : ''));
+    return;
+  }
+  setStatus(sim.gen+'세대에 도달해서 멈췄어요. 1세대 최고 '+fmt(sim.first.s)+'점에서 '+fmt(top)+'점까지 올랐습니다.'+
+    (top>=CEIL[sim.n]-1e-9 ? ' 이 몸 크기에서 확인된 최고점에 도달했어요.' : ''));
+}
+function start(){
+  if(sim.gen>=P.target){
+    $('seed').value=String(Math.floor(Math.random()*900000)+100);
+    resetSim();
+  }
+  setStatus('');
+  setRunning(true); lastTs=null; acc=0;
+  requestAnimationFrame(loop);
+}
+function pause(){ setRunning(false); }
+
+/* ============================================================
+   6. 경주
+   ============================================================ */
+function resetRace(){
+  race.running=false; race.frac=0;
+  $('raceNote').textContent='';
+}
+function finishRace(){
+  var a=sim.first.s, b=viewPop()[0].s, who=(viewGen!==null?viewGen+'세대':'지금');
+  $('raceNote').textContent = (sim.flipped && b<0)
+    ? '환경이 바뀐 뒤라서 지금 최고 로봇의 점수가 음수예요. 이 경주는 오른쪽으로 달리는 것만 그려서 제자리에 있습니다.'
+    : a<0.01
+    ? '1세대 최고 로봇은 거의 움직이지 못했어요.'
+    : '같은 시간에 '+who+' 최고 로봇이 '+(b/a).toFixed(1)+'배 멀리 갔어요.';
+}
+function startRace(){
+  if(running) pause();
+  if(reduceMotion){ race.frac=1; race.running=false; finishRace(); drawRace(); return; }
+  race.running=true; race.frac=0;
+  var t0=performance.now();
+  $('raceNote').textContent='';
+  (function frame(now){
+    if(!race.running) return;
+    race.now=now;
+    race.frac=Math.min(1,(now-t0)/RACE_MS);
+    drawRace();
+    if(race.frac<1){ requestAnimationFrame(frame); }
+    else { race.running=false; finishRace(); drawRace(); }
+  })(t0);
+}
+
+/* ============================================================
+   7. 돌연변이율 비교 실험
+   ============================================================ */
+function tick(){ return new Promise(function(r){ setTimeout(r,0); }); }
+function parseRates(s){
+  var out=[];
+  s.split(/[,\s]+/).forEach(function(t){
+    if(t==='') return;
+    var v=parseFloat(t);
+    if(isFinite(v)&&v>=0&&v<=100&&out.indexOf(v)<0) out.push(v);
+  });
+  return out.slice(0,6);
+}
+async function runCompare(){
+  if(cmpBusy) return;
+  var rates=parseRates($('cmpRates').value);
+  var msg=$('cmpMsg');
+  if(!rates.length){ msg.className='note err'; msg.textContent='0에서 100 사이의 숫자를 쉼표로 구분해서 입력해 주세요.'; return; }
+  var trials=Math.max(5,Math.min(100,parseInt($('cmpTrials').value,10)||30));
+  var gens=Math.min(P.target,CMP_MAX), base=seedValue(), sz=P.n;
+  cmpBusy=true; $('btnCmp').disabled=true; msg.className='note';
+  Array.prototype.forEach.call(document.querySelectorAll('.segbtn'),function(b){ b.disabled=true; });
+  var prog=$('cmpProg'); prog.hidden=false; prog.max=rates.length*trials; prog.value=0;
+  var done=0, runs=rates.map(function(){return [];});
+  for(var ri=0;ri<rates.length;ri++){
+    for(var t=0;t<trials;t++){
+      var s=new Sim({rate:rates[ri]/100,pop:P.pop,elite:P.elite,target:gens,n:sz,shiftAt:P.shiftAt},base+t*101);
+      while(s.gen<gens) s.step();
+      runs[ri].push(s.best);
+      done++;
+      if(done%4===0){
+        prog.value=done;
+        msg.textContent='실험 중… ('+done+' / '+(rates.length*trials)+')';
+        await tick();
+      }
+    }
+  }
+  var mean=[], std=[];
+  runs.forEach(function(rr){
+    var mu=new Array(gens), sd=new Array(gens);
+    for(var g=0;g<gens;g++){
+      var sum=0; for(var k=0;k<rr.length;k++) sum+=rr[k][g];
+      var m=sum/rr.length, v=0;
+      for(var k2=0;k2<rr.length;k2++) v+=(rr[k2][g]-m)*(rr[k2][g]-m);
+      mu[g]=m; sd[g]=Math.sqrt(v/rr.length);
+    }
+    mean.push(mu); std.push(sd);
+  });
+  cmp={rates:rates,mean:mean,std:std,gens:gens,trials:trials,n:sz,shiftAt:P.shiftAt};
+  prog.hidden=true; cmpBusy=false; $('btnCmp').disabled=false;
+  Array.prototype.forEach.call(document.querySelectorAll('.segbtn'),function(b){ b.disabled=false; });
+  msg.textContent='완료: 몸 크기 '+sz+'×'+sz+', '+rates.length+'개 조건 × '+trials+'회 반복 × '+gens+'세대 (시드 '+base+')'+(P.shiftAt?', '+P.shiftAt+'세대에서 환경 변화':'')+(P.target>CMP_MAX?'. 비교 실험은 최대 '+CMP_MAX+'세대까지만 돌려요.':'');
+  showCompare();
+}
+function showCompare(){
+  $('cmpOut').hidden=false;
+  var leg=$('cmpLegend'); leg.textContent='';
+  cmp.rates.forEach(function(r,i){
+    var sp=document.createElement('span'); sp.className='lg';
+    var ic=document.createElement('i'); ic.style.borderColor='var(--s'+i+')';
+    sp.appendChild(ic); sp.appendChild(document.createTextNode('돌연변이율 '+r+'%'));
+    leg.appendChild(sp);
+  });
+  var body=$('cmpBody'); body.textContent='';
+  var last=cmp.gens-1;
+  cmp.rates.forEach(function(r,i){
+    var tr=document.createElement('tr');
+    var cells=[r+'%', cmp.gens>=10?cmp.mean[i][9].toFixed(3):'-', cmp.gens>=30?cmp.mean[i][29].toFixed(3):'-', cmp.mean[i][last].toFixed(3), cmp.std[i][last].toFixed(3)];
+    cells.forEach(function(t,j){
+      var td=document.createElement(j===0?'th':'td'); if(j===0) td.scope='row';
+      td.textContent=t; tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+  var f=$('cmpFind'); f.textContent='';
+  function add(t){ var li=document.createElement('li'); li.textContent=t; f.appendChild(li); }
+  var order=cmp.rates.map(function(_,i){return i;}).sort(function(a,b){return cmp.mean[b][last]-cmp.mean[a][last];});
+  add('마지막 세대 평균이 가장 높은 조건은 돌연변이율 '+cmp.rates[order[0]]+'%('+cmp.mean[order[0]][last].toFixed(3)+'점)입니다.');
+  var zi=cmp.rates.indexOf(0);
+  if(zi>=0&&Math.abs(cmp.mean[zi][last]-cmp.mean[zi][0])<1e-9){
+    add('돌연변이율 0%는 1세대 점수에서 전혀 변하지 않았어요. 변이가 없으면 선택할 새로운 재료가 없기 때문입니다.');
+  }
+  if(order.length>1){
+    var a=order[0], b=order[1];
+    if(cmp.mean[a][last]-cmp.mean[b][last] < Math.max(cmp.std[a][last],cmp.std[b][last])){
+      add('상위 두 조건('+cmp.rates[a]+'%, '+cmp.rates[b]+'%)의 차이가 표준편차보다 작아서, 어느 쪽이 낫다고 단정하기는 어렵습니다.');
+    }
+  }
+  drawCompare();
+}
+function drawCompare(){
+  if(!cmp) return;
+  var c=colors();
+  var lo=0; cmp.mean.forEach(function(m){ m.forEach(function(v){ if(v<lo) lo=v; }); });
+  lo = lo<0 ? Math.floor((lo-0.3)*2)/2 : 0;                  // 평균 아래 표준편차 띠까지 보이도록 여유를 둔다
+  chart($('cmp'),{height:300,xMax:cmp.gens,yMax:yMaxFor(cmp.n),yMin:lo,shiftAt:(cmp.shiftAt||0),series:cmp.rates.map(function(r,i){
+    return {data:cmp.mean[i],band:cmp.std[i],color:c.s[i],width:2.2};
+  })});
+}
+
+/* ============================================================
+   8. 이벤트 연결
+   ============================================================ */
+function bindRange(id,outId,fn,fmtFn){
+  var el=$(id);
+  el.addEventListener('input',function(){
+    var v=+el.value; $(outId).textContent=fmtFn(v); fn(v);
+  });
+}
+bindRange('rate','rateOut',function(v){ P.rate=v/100; },function(v){return v+'%';});
+bindRange('elite','eliteOut',function(v){ P.elite=v/100; drawDish(); },function(v){return v+'%';});
+bindRange('pop','popOut',function(v){ P.pop=v; if(sim.gen===1&&!running) resetSim(); },function(v){return v+'개';});
+$('target').addEventListener('input',function(){
+  var v=parseInt(this.value,10);
+  if(isFinite(v)&&v>=MING&&v<=MAXG) setTarget(v);
+});
+$('target').addEventListener('change',function(){
+  var v=parseInt(this.value,10);
+  setTarget(isFinite(v)?v:P.target);
+});
+$('targetRange').addEventListener('input',function(){ setTarget(+this.value); });
+Array.prototype.forEach.call(document.querySelectorAll('.chip'),function(ch){
+  ch.addEventListener('click',function(){ setTarget(+ch.getAttribute('data-target')); });
+});
+Array.prototype.forEach.call(document.querySelectorAll('.segbtn'),function(b){
+  b.addEventListener('click',function(){ setSize(+b.getAttribute('data-n')); });
+});
+$('btnAdv10').addEventListener('click',function(){ advance(10); });
+$('btnAdv50').addEventListener('click',function(){ advance(50); });
+$('view').addEventListener('input',function(){ setView(+this.value); });
+$('btnFirst').addEventListener('click',function(){ setView(1); });
+$('btnPrev').addEventListener('click',function(){ setView(vg()-1); });
+$('btnNext').addEventListener('click',function(){ setView(vg()+1); });
+$('btnLatest').addEventListener('click',function(){ setView(sim.gen); });
+bindRange('speed','speedOut',function(){},function(v){return SPEED_LABELS[v];});
+
+/* 환경 변화 실험: 켜기/끄기, 바뀌는 세대 */
+function applyShift(){
+  var on=$('shiftOn').checked;
+  var g=Math.max(2,Math.min(900,parseInt($('shiftGen').value,10)||100));
+  $('shiftGen').disabled=!on;
+  P.shiftAt= on ? g : 0;
+  $('shiftOut').textContent= on ? (g+'세대에서') : '꺼짐';
+  if(cmpBusy) return;
+  pause();
+  cmp=null; $('cmpOut').hidden=true; $('cmpMsg').textContent='';
+  // 바뀌는 세대보다 목표 세대가 작으면 바뀌는 모습을 볼 수 없으므로 목표 세대를 늘려 준다
+  if(on && P.target<=g+50){ setTarget(Math.min(MAXG,g+200),true); }
+  resetSim(); setRunning(false);
+  setStatus(on ? ('환경 변화를 켰어요. '+g+'세대에서 목표 방향이 오른쪽에서 왼쪽으로 바뀝니다. 1세대부터 새로 시작했어요.')
+               : '환경 변화를 껐어요. 1세대부터 새로 시작했어요.');
+}
+$('shiftOn').addEventListener('change',applyShift);
+$('shiftGen').addEventListener('change',applyShift);
+$('seed').addEventListener('change',function(){ if(sim.gen===1&&!running) resetSim(); });
+
+$('btnRun').addEventListener('click',function(){ if(running) pause(); else start(); });
+$('btnStep').addEventListener('click',function(){
+  if(running) pause();
+  if(sim.gen>=P.target){ setStatus('목표 세대에 이미 도달했어요. 목표 세대를 늘리거나 초기화해 주세요.'); return; }
+  stepOnce(); render();
+  if(sim.gen>=P.target) finish(); else setRunning(false);
+});
+$('btnReset').addEventListener('click',function(){ pause(); resetSim(); setRunning(false); });
+$('btnRace').addEventListener('click',startRace);
+$('btnCmp').addEventListener('click',runCompare);
+
+var dish=$('dish'), cap=$('dishCap');
+var CAP_DEFAULT='점수가 높은 순서로 왼쪽 위부터 놓입니다. 노란 테두리가 다음 세대의 부모가 되는 로봇이에요. 로봇 위에 마우스를 올리거나 손가락을 대 보세요.';
+cap.textContent=CAP_DEFAULT;
+function hoverDish(e){
+  if(!dishLayout) return;
+  var r=dish.getBoundingClientRect(), L=dishLayout;
+  var x=e.clientX-r.left-L.pad, y=e.clientY-r.top-L.pad;
+  var col=Math.floor(x/(L.rs+L.gap)), row=Math.floor(y/(L.rs+L.gap));
+  var inside = x>=0 && y>=0 && (x-col*(L.rs+L.gap))<=L.rs && (y-row*(L.rs+L.gap))<=L.rs && col<L.cols;
+  var idx=row*L.cols+col;
+  if(inside && idx>=0 && idx<L.n){
+    var o=viewPop()[idx], a=analyze(o.b);
+    cap.textContent=vg()+'세대 '+(idx+1)+'위 로봇: 점수 '+o.s.toFixed(3)+', 수축 세포 '+a.muscle+'개, 몸의 연결 정도 '+Math.round(a.conn*100)+'%';
+  } else cap.textContent=CAP_DEFAULT;
+}
+dish.addEventListener('pointermove',hoverDish);
+dish.addEventListener('pointerdown',hoverDish);
+dish.addEventListener('pointerleave',function(){ cap.textContent=CAP_DEFAULT; });
+
+/* 창 크기 / 테마 변화에 다시 그리기 */
+var lastW=0, resizeQueued=false;
+function queueRender(){
+  // 감시자(ResizeObserver) 콜백 안에서 바로 그리면 화면 높이가 바뀌어
+  // 'ResizeObserver loop' 경고가 나므로, 다음 프레임에 그린다.
+  if(resizeQueued) return;
+  resizeQueued=true;
+  requestAnimationFrame(function(){ resizeQueued=false; render(); });
+}
+if(window.ResizeObserver){
+  new ResizeObserver(function(es){
+    var w=Math.round(es[0].contentRect.width);
+    if(w!==lastW){ lastW=w; queueRender(); }
+  }).observe($('main'));
+} else {
+  window.addEventListener('resize',queueRender);
+}
+if(window.matchMedia){
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');
+  if(mq.addEventListener) mq.addEventListener('change',render);
+}
+new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(render);
+
+/* 시작 */
+if(window.innerWidth<=860) $('settings').open=false;
+updateSizeUI();
+resetSim();
+setRunning(false);
+})();
+</script>
+</body>
+</html>
