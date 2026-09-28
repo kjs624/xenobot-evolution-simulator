@@ -168,9 +168,44 @@ body{background:var(--bg)}
   background:linear-gradient(90deg,var(--skin),var(--accent),var(--muscle));pointer-events:none}
 
 /* 제목 줄 */
-.pagehead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin:0 0 22px}
-.pagehead h1{margin:0;font:700 clamp(22px,2.6vw,28px)/1.2 var(--display);letter-spacing:-.03em}
-.pagehead p{margin:0;font:500 13px/1.4 var(--mono);color:var(--muted)}
+.pagehead{position:relative;overflow:hidden;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:22px;align-items:center;
+  margin:0 0 24px;padding:24px 26px;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);
+  background:linear-gradient(135deg,var(--panel2),var(--panel) 60%)}
+.pagehead::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:28px 28px;opacity:.35;
+  -webkit-mask-image:linear-gradient(90deg,transparent 30%,#000);mask-image:linear-gradient(90deg,transparent 30%,#000)}
+.ph-bg{position:absolute;inset:0;pointer-events:none}
+.ph-bg i{position:absolute;border-radius:50%;filter:blur(60px);opacity:var(--blob)}
+.ph-bg .p1{width:260px;height:260px;background:var(--accent);top:-150px;right:18%}
+.ph-bg .p2{width:220px;height:220px;background:var(--muscle);bottom:-160px;left:-60px;opacity:calc(var(--blob)*.8)}
+.pagehead>*:not(.ph-bg){position:relative;z-index:1}
+.ph-logo{width:74px;height:74px;padding:10px;border-radius:20px;background:var(--bg);border:1px solid var(--line);overflow:visible;
+  box-shadow:0 0 30px -8px color-mix(in srgb,var(--muscle) 55%,transparent)}
+.ph-logo rect{transform-box:fill-box;transform-origin:center}
+.ph-kicker{display:inline-flex;align-items:center;gap:8px;margin:0 0 6px;font:500 12px/1.3 var(--mono);color:var(--muted)}
+.ph-kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--skin);animation:ping 2s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--skin) 70%,transparent)}80%,100%{box-shadow:0 0 0 9px transparent}}
+.pagehead h1{margin:0 0 6px;font:800 clamp(28px,3.6vw,42px)/1.1 var(--display);letter-spacing:-.04em}
+.pagehead h1 .w{display:inline-block}
+.hl{display:inline-block;background:linear-gradient(100deg,var(--skin),var(--accent) 45%,var(--muscle) 80%,var(--best));
+  background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
+.ph-sub{margin:0;font-size:14.5px;color:var(--muted)}
+.ph-sub #introSize{font:600 13px/1 var(--mono);color:var(--ink);padding:3px 7px;border-radius:6px;background:var(--empty)}
+.ph-live{display:grid;grid-template-columns:auto auto;gap:4px 18px;padding:14px 16px;border-radius:16px;
+  border:1px solid var(--line);background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(8px);min-width:250px}
+.ph-stat span{display:block;font:500 11px/1.3 var(--mono);color:var(--muted)}
+.ph-stat b{display:inline-block;font:700 24px/1.2 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ph-stat.best b{color:var(--skin)}
+.ph-spark{grid-column:1/-1;width:100%;height:38px;margin-top:4px;overflow:visible}
+.ph-spark .area{fill:color-mix(in srgb,var(--skin) 18%,transparent)}
+.ph-spark .line{fill:none;stroke:var(--skin);stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+@media (max-width:860px){
+  .pagehead{grid-template-columns:auto minmax(0,1fr);padding:20px 18px;gap:16px}
+  .ph-live{grid-column:1/-1;min-width:0}
+  .ph-logo{width:60px;height:60px;padding:8px;border-radius:16px}
+}
+@media (prefers-reduced-motion:reduce){ .ph-kicker .dot{animation:none} }
 
 /* 카드 */
 .controls,.main section{background-color:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);
@@ -220,7 +255,7 @@ th{font-family:var(--mono);font-weight:500;font-size:12px}
 .confetti{position:fixed;left:0;top:0;width:9px;height:9px;border-radius:2px;pointer-events:none;z-index:60}
 
 /* 등장 애니메이션 전 상태 (anime.js가 불러와졌을 때만) */
-.anim .reveal>*,.anim .pagehead:not(.in){opacity:0}
+.anim .reveal>*,.anim .pagehead:not(.in),.anim .ph-kicker,.anim .pagehead h1 .w,.anim .pagehead .hl,.anim .ph-sub,.anim .ph-live{opacity:0}
 @media (prefers-reduced-motion:reduce){ .btn.primary.is-running,.btn.primary.is-running::before,.eyebrow .dot{animation:none} }
 </style>
 <script>
@@ -231,8 +266,18 @@ if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))
 <div class="progress" id="scrollProg" aria-hidden="true"></div>
 <div class="wrap">
   <header class="pagehead">
-    <h1>제노봇 진화 시뮬레이터</h1>
-    <p><span id="introSize">5×5</span> 격자 로봇 · 유전 알고리즘으로 “오른쪽으로 빨리 가기” 진화</p>
+    <div class="ph-bg" aria-hidden="true"><i class="p1"></i><i class="p2"></i></div>
+    <svg class="ph-logo" id="phLogo" viewBox="0 0 34 34" aria-hidden="true"></svg>
+    <div class="ph-text">
+      <p class="ph-kicker"><span class="dot"></span>과학 탐구 · 유전 알고리즘</p>
+      <h1 id="phTitle">제노봇 <span class="hl">진화</span> 시뮬레이터</h1>
+      <p class="ph-sub"><span id="introSize">5×5</span> 격자 로봇이 “오른쪽으로 빨리 가기”를 목표로 세대를 거듭하며 변합니다.</p>
+    </div>
+    <div class="ph-live" aria-hidden="true">
+      <div class="ph-stat"><span>세대</span><b id="phGen">1</b></div>
+      <div class="ph-stat best"><span>최고 점수</span><b id="phBest">0.00</b></div>
+      <svg class="ph-spark" id="phSpark" viewBox="0 0 120 36" preserveAspectRatio="none"><path class="area"/><path class="line"/></svg>
+    </div>
   </header>
 
   <div class="layout">
@@ -1139,10 +1184,78 @@ function $(id){return document.getElementById(id);}
 function $$(s,el){return Array.prototype.slice.call((el||document).querySelectorAll(s));}
 function rnd(a,b){return a+Math.random()*(b-a);}
 function cssv(n){return getComputedStyle(root).getPropertyValue(n).trim();}
+/* --- 제목 줄 오른쪽: 세대·최고 점수와 작은 그래프 (움직임과 상관없이 동작) --- */
+var stG=$('stGen'), stB=$('stBest'), phGen=$('phGen'), phBest=$('phBest'), spark=$('phSpark');
+var hist=[], lastG=0;
+function drawSpark(){
+  if(hist.length<2){ spark.querySelector('.line').setAttribute('d',''); spark.querySelector('.area').setAttribute('d',''); return; }
+  var lo=Math.min(0,Math.min.apply(null,hist)), hi=Math.max(0.5,Math.max.apply(null,hist)), W=120, H=36, d='';
+  hist.forEach(function(v,i){ d+=(i?'L':'M')+(i/(hist.length-1)*W).toFixed(2)+' '+(H-2-(v-lo)/(hi-lo)*(H-4)).toFixed(2); });
+  spark.querySelector('.line').setAttribute('d',d);
+  spark.querySelector('.area').setAttribute('d',d+'L'+W+' '+H+'L0 '+H+'Z');
+}
+function syncHead(){
+  if($('viewOut').textContent.indexOf('지난 세대')>=0) return;     // 지난 세대를 보는 중이면 그대로 둔다
+  var g=parseInt(stG.textContent,10)||1, b=parseFloat(stB.textContent)||0;
+  if(g===1||g<lastG){ hist=[b]; } else if(g>lastG){ hist.push(b); } else { hist[hist.length-1]=b; }
+  if(hist.length>400) hist=hist.filter(function(_,i){ return i%2===0; });
+  lastG=g; phGen.textContent=g; phBest.textContent=b.toFixed(2); drawSpark();
+}
+[stG,stB].forEach(function(el){ new MutationObserver(syncHead).observe(el,{childList:true,characterData:true,subtree:true}); });
+syncHead();
+
+/* --- 제목 줄 로고: 작은 제노봇 (5x5) --- */
+var LG=[2,2,1,1,0, 2,1,1,1,1, 2,2,1,1,1, 2,1,1,1,1, 2,2,1,1,0], logo=$('phLogo'), lcells=[];
+LG.forEach(function(v,k){
+  var r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  r.setAttribute('x',(k%5)*7); r.setAttribute('y',Math.floor(k/5)*7); r.setAttribute('width',6); r.setAttribute('height',6); r.setAttribute('rx',1.6);
+  r.setAttribute('fill',v===2?'var(--muscle)':(v===1?'var(--skin)':'var(--empty)'));
+  logo.appendChild(r); lcells.push(r);
+});
 if(!ok) return;
 
-/* --- 제목 줄 --- */
-anime({targets:'.pagehead',opacity:[0,1],translateY:[12,0],duration:700,easing:'easeOutExpo',complete:function(){ var h=document.querySelector('.pagehead'); h.style.opacity=''; h.style.transform=''; document.querySelector('.pagehead').classList.add('in'); }});
+/* --- 제목 줄 등장 --- */
+var h1=$('phTitle');
+Array.prototype.slice.call(h1.childNodes).forEach(function(n){
+  if(n.nodeType!==3) return;
+  var frag=document.createDocumentFragment();
+  n.textContent.split(/(\s+)/).forEach(function(part){
+    if(!part) return;
+    if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(part)); return; }
+    var w=document.createElement('span'); w.className='w'; w.textContent=part; frag.appendChild(w);
+  });
+  h1.replaceChild(frag,n);
+});
+var ph=document.querySelector('.pagehead');
+ph.style.opacity=0; ph.classList.add('in');
+lcells.forEach(function(r){ r.style.transform='scale(0)'; });
+anime.timeline({easing:'easeOutExpo'})
+  .add({targets:ph,opacity:[0,1],scale:[.98,1],duration:700})
+  .add({targets:lcells,scale:[0,1],rotate:[anime.stagger([-120,120]),0],duration:900,easing:'easeOutElastic(1, .6)',
+    delay:anime.stagger(30,{grid:[5,5],from:'center'})},'-=500')
+  .add({targets:'.ph-kicker',opacity:[0,1],translateX:[-12,0],duration:600},'-=900')
+  .add({targets:h1.querySelectorAll('.w,.hl'),opacity:[0,1],translateY:[26,0],rotate:[4,0],duration:900,delay:anime.stagger(90)},'-=500')
+  .add({targets:'.ph-sub',opacity:[0,1],translateY:[10,0],duration:700},'-=700')
+  .add({targets:'.ph-live',opacity:[0,1],translateX:[24,0],duration:800,complete:logoLoop},'-=700');
+anime({targets:'.pagehead .hl',backgroundPosition:['0% 50%','100% 50%'],duration:4000,direction:'alternate',loop:true,easing:'easeInOutSine'});
+function logoLoop(){
+  anime({targets:lcells.filter(function(_,k){return LG[k]===2;}),scaleX:[1,.6],scaleY:[1,1.1],direction:'alternate',loop:true,duration:440,easing:'easeInOutSine',
+    delay:function(el){ return (lcells.indexOf(el)%5)*110; }});
+  anime({targets:lcells.filter(function(_,k){return LG[k]===1;}),translateX:[0,1.2],direction:'alternate',loop:true,duration:440,easing:'easeInOutSine',delay:220});
+}
+function drift(el){
+  anime({targets:el,translateX:rnd(-120,120),translateY:rnd(-40,60),scale:rnd(.8,1.3),duration:rnd(5000,8000),easing:'easeInOutSine',complete:function(){ drift(el); }});
+}
+$$('.ph-bg i').forEach(drift);
+// 최고 점수가 오르면 제목 줄 숫자도 톡
+var phPrev=0;
+new MutationObserver(function(){
+  var v=parseFloat(phBest.textContent);
+  if(v>phPrev+1e-9 && !anime.running.some(function(a){ return a.animatables.some(function(x){ return x.target===phBest; }); })){
+    anime({targets:phBest,scale:[1.25,1],duration:500,easing:'easeOutBack'});
+  }
+  phPrev=v;
+}).observe(phBest,{childList:true});
 
 
 /* --- 스크롤 진행 막대 --- */
