@@ -257,56 +257,37 @@ th{font-family:var(--mono);font-weight:500;font-size:12px}
 /* 등장 애니메이션 전 상태 (anime.js가 불러와졌을 때만) */
 .anim .reveal>*,.anim .pagehead:not(.in),.anim .ph-kicker,.anim .pagehead h1 .w,.anim .pagehead .hl,.anim .ph-sub,.anim .ph-live{opacity:0}
 @media (prefers-reduced-motion:reduce){ .btn.primary.is-running,.btn.primary.is-running::before,.eyebrow .dot{animation:none} }
-/* ---------- 진화 순서도 ---------- */
-.flow{position:relative;padding:4px 0 4px 34px}
-.flow-lines{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-.flow-lines .loop{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:6 6;animation:flowdash 1.2s linear infinite}
-@keyframes flowdash{to{stroke-dashoffset:-24}}
-.flow-lines .loop-lbl{font:500 11px var(--mono);fill:var(--accent);letter-spacing:.02em}
-.frow{display:grid;grid-template-columns:minmax(0,1fr) 74px minmax(0,.85fr);align-items:center}
-.frow .yes{position:relative;height:2px;background:var(--best);margin:0 6px}
-.frow .yes::after{content:"";position:absolute;right:-2px;top:-4px;border:5px solid transparent;border-left:7px solid var(--best);border-right:0}
-.frow .yes span{position:absolute;left:50%;top:-20px;transform:translateX(-50%);font:600 11.5px/1 var(--mono);color:var(--best)}
-.fconn{display:grid;grid-template-columns:minmax(0,1fr) 74px minmax(0,.85fr);height:30px}
-.fconn i{position:relative;display:block}
-.fconn i::before{content:"";position:absolute;left:50%;top:2px;bottom:6px;width:2px;margin-left:-1px;background:var(--line)}
-.fconn i::after{content:"";position:absolute;left:50%;bottom:0;margin-left:-5px;border:5px solid transparent;border-top:7px solid var(--line);border-bottom:0}
-.fconn i span{position:absolute;left:calc(50% + 10px);top:7px;font:600 11.5px/1 var(--mono);color:var(--muted)}
-.fnode{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;cursor:pointer;
-  border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:inherit;transition:border-color .2s,box-shadow .3s,background-color .3s}
-.fnode:hover{border-color:var(--k)}
-.fnode b{display:block;font:700 15px/1.35 var(--sans)}
-.fnode small{display:block;font:500 12px/1.4 var(--mono);color:var(--muted);margin-top:2px}
-.fn-no{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:9px;font:700 12px/1 var(--mono);
-  color:var(--k);background:color-mix(in srgb,var(--k) 15%,transparent);border:1px solid color-mix(in srgb,var(--k) 40%,transparent)}
-.k-term{--k:var(--skin)} .k-term.fnode{border-radius:999px} .k-term .fn-no{border-radius:50%}
-.k-proc{--k:var(--accent)}
-.k-dec{--k:var(--best)} .k-dec .fn-no{transform:rotate(45deg);width:24px;height:24px;margin:0 3px;border-radius:5px}
-.k-dec .fn-no em{transform:rotate(-45deg);font-style:normal}
-.k-end{--k:var(--muscle)}
-.fnode[aria-expanded="true"]{border-color:var(--k);background:color-mix(in srgb,var(--k) 10%,var(--panel2))}
-.fnode.pulse{border-color:var(--k);box-shadow:0 0 0 3px color-mix(in srgb,var(--k) 30%,transparent),0 0 24px -4px var(--k)}
-.fdetail{grid-column:1/-1;margin:10px 0 2px;padding:16px 18px;border-radius:14px;border:1px solid var(--line);border-left:3px solid var(--k);
-  background:var(--panel);font-size:14.5px;overflow:hidden}
-.fdetail p{margin:0 0 8px} .fdetail ul,.fdetail ol{margin:0 0 8px;padding-left:1.2em} .fdetail li{margin:0 0 4px}
-.fdetail>*:last-child{margin-bottom:0}
-.fdetail .formula{font:600 13.5px/1.5 var(--mono);padding:9px 12px;border-radius:10px;background:var(--panel2);margin:0 0 10px;color:var(--ink)}
-.fdetail .now{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
-.fdetail .now span{font:500 12px/1 var(--mono);padding:6px 9px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
-.fdetail .now b{color:var(--ink);font-weight:600}
-.fk{display:inline-flex;align-items:center;gap:5px;margin-left:8px;font-size:13px}
-.fk::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--k)}
-.fk-term{--k:var(--skin)} .fk-proc{--k:var(--accent)} .fk-dec{--k:var(--best)}
-@media (max-width:600px){
-  .flow{padding-left:26px}
-  .frow,.fconn{grid-template-columns:minmax(0,1fr)}
-  .frow .yes{height:26px;width:2px;margin:0 0 0 24px}
-  .frow .yes::after{right:auto;top:auto;bottom:-2px;left:-4px;border:5px solid transparent;border-top:7px solid var(--best);border-bottom:0}
-  .frow .yes span{left:12px;top:7px;transform:none}
-  .frow .side{padding-left:14px}
-  .fconn i:not(:first-child){display:none}
-}
-@media (prefers-reduced-motion:reduce){ .flow-lines .loop{animation:none} }
+
+/* ---------- 한 단계씩 보기 ---------- */
+.btn.explain-btn{border-color:color-mix(in srgb,var(--best) 55%,var(--line));color:var(--best)}
+.btn.explain-btn:hover:not(:disabled){border-color:var(--best);box-shadow:0 0 0 3px color-mix(in srgb,var(--best) 18%,transparent)}
+.main section.explain{border-color:color-mix(in srgb,var(--best) 45%,var(--line));
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--best) 20%,transparent),var(--shadow)}
+.main section.explain h2::before{content:none}
+.ex-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;margin:0 0 14px}
+.ex-gen{font:600 12.5px/1 var(--mono);color:var(--best);padding:6px 10px;border-radius:999px;background:color-mix(in srgb,var(--best) 14%,transparent)}
+.ex-close{margin-left:auto;border:0;background:none;color:var(--muted);font:500 13px/1 var(--sans);cursor:pointer;padding:8px}
+.ex-close:hover{color:var(--ink)}
+.ex-steps{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.ex-steps button{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:8px 9px;border-radius:10px;
+  border:1px solid var(--line);background:var(--panel2);color:var(--muted);font:600 12px/1.25 var(--sans);cursor:pointer;text-align:left;transition:all .25s}
+.ex-steps button span{font:700 11px/1 var(--mono);width:20px;height:20px;display:grid;place-items:center;border-radius:6px;background:var(--empty);color:var(--muted)}
+.ex-steps button.done{color:var(--ink)}
+.ex-steps button.done span{background:color-mix(in srgb,var(--skin) 25%,transparent);color:var(--skin)}
+.ex-steps button[aria-current="step"]{border-color:var(--best);color:var(--ink);background:color-mix(in srgb,var(--best) 12%,var(--panel2))}
+.ex-steps button[aria-current="step"] span{background:var(--best);color:#1a1300}
+.ex-steps button:disabled{opacity:.45;cursor:default}
+@media (max-width:760px){ .ex-steps{grid-template-columns:repeat(4,minmax(0,1fr))} }
+.ex-body{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:1100px){ .ex-body{grid-template-columns:1fr} }
+.ex-stage{background:var(--panel2);border-radius:16px;padding:12px;min-height:120px}
+.ex-copy h3{margin:0 0 10px;font:700 19px/1.35 var(--display);letter-spacing:-.02em}
+#exText p{margin:0 0 10px;font-size:15px}
+#exText b{color:var(--ink)}
+#exText b.up{color:var(--skin)} #exText b.down{color:var(--muscle)}
+#exText .ex-hint{font-size:13px;color:var(--best)}
+.ex-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+.ex-actions .btn.primary{min-width:200px}
 </style>
 <script>
 if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)) document.documentElement.classList.add('anim');
@@ -338,6 +319,7 @@ if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))
         <button id="btnReset" class="btn" type="button">초기화</button>
         <button id="btnAdv10" class="btn" type="button">10세대 진행</button>
         <button id="btnAdv50" class="btn" type="button">50세대 진행</button>
+        <button id="btnExplain" class="btn wide explain-btn" type="button">한 단계씩 설명하며 진행</button>
       </div>
 
       <div class="sizectl" role="group" aria-labelledby="sizeLbl">
@@ -410,6 +392,26 @@ if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))
     </aside>
 
     <main class="main" id="main">
+      <section class="explain" id="explain" aria-labelledby="h-exp" hidden>
+        <div class="ex-head">
+          <h2 id="h-exp">한 단계씩 보기</h2>
+          <span class="ex-gen" id="exGen"></span>
+          <button id="exClose" class="ex-close" type="button" aria-label="설명 닫기">닫기 ✕</button>
+        </div>
+        <ol class="ex-steps" id="exSteps" aria-label="단계"></ol>
+        <div class="ex-body">
+          <div class="ex-stage"><canvas id="exCanvas" role="img" aria-label="이번 단계에서 일어난 일"></canvas></div>
+          <div class="ex-copy" aria-live="polite">
+            <h3 id="exTitle"></h3>
+            <div id="exText"></div>
+          </div>
+        </div>
+        <div class="ex-actions">
+          <button id="exNext" class="btn primary" type="button">다음 단계 ▶</button>
+          <button id="exAuto" class="btn" type="button" aria-pressed="false">자동으로 보기</button>
+        </div>
+      </section>
+
       <section aria-labelledby="h-pop">
         <h2 id="h-pop">세대별 로봇 보기</h2>
         <p class="sub">슬라이더를 움직이면 지나온 세대의 로봇 집단을 볼 수 있어요. 1세대와 지금 세대를 비교해 보세요. 점수가 높은 순서로 왼쪽 위부터 놓이고, 수축 세포(빨강)가 세대가 지날수록 왼쪽으로 모입니다.</p>
@@ -485,22 +487,6 @@ if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))
             </table>
           </div>
           <ul class="findings" id="cmpFind"></ul>
-        </div>
-      </section>
-
-      <section class="flowsec" aria-labelledby="h-flow">
-        <h2 id="h-flow">진화 순서도</h2>
-        <p class="sub">이 시뮬레이터가 세대를 만드는 순서입니다. 칸을 누르면 지금 설정값으로 자세한 설명이 열리고, 진화를 돌리면 세대마다 지나가는 단계가 빛납니다.</p>
-        <div class="flow" id="flow">
-          <svg class="flow-lines" id="flowLines" aria-hidden="true">
-            <defs><marker id="flowArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
-            <path id="flowLoop" class="loop"/>
-            <text id="flowLoopLbl" class="loop-lbl">다음 세대 · 세대 +1</text>
-          </svg>
-        </div>
-        <div class="row-actions">
-          <button id="btnTour" class="btn" type="button">▶ 순서 따라가기</button>
-          <p class="note" id="flowNote">색 구분: <span class="fk fk-term">시작·끝</span> <span class="fk fk-proc">처리</span> <span class="fk fk-dec">판단</span></p>
         </div>
       </section>
 
@@ -615,10 +601,14 @@ function analyze(b,dir){
 }
 function fitness(b,dir){ return analyze(b,dir).score; }
 
-function mutate(b,rate,rng){
+function mutate(b,rate,rng,tr){
   var c=b.slice();
   for(var i=0;i<c.length;i++){
-    if(rng()<rate) c[i]=Math.floor(rng()*3);
+    if(rng()<rate){
+      var v=Math.floor(rng()*3);
+      if(tr&&v!==c[i]) tr.push(i);         // 설명 모드: 실제로 상태가 바뀐 칸만 기록 (난수 사용 순서는 그대로)
+      c[i]=v;
+    }
   }
   return c;
 }
@@ -657,8 +647,9 @@ Sim.prototype.flip=function(){
   this.pop.sort(function(a,b){return b.s-a.s;});
   this.flipped=this.gen;                   // 몇 세대에서 바뀌었는지 기록
 };
-Sim.prototype.step=function(){
+Sim.prototype.step=function(tr){           // tr: 설명 모드에서 이번 세대에 일어난 일을 담을 객체 (없으면 기록 안 함)
   if(this.shiftAt>0 && this.gen===this.shiftAt && !this.flipped){
+    if(tr) tr.flippedNow=true;
     this.flip();
     this.best[this.best.length-1]=this.pop[0].s;     // 뒤집힌 뒤의 점수로 이 세대 기록을 바로잡는다
     var sum0=0; for(var q=0;q<this.pop.length;q++) sum0+=this.pop[q].s;
@@ -668,11 +659,19 @@ Sim.prototype.step=function(){
   var ne=Math.min(this.nElite(),this.pop.length);
   var parents=this.pop.slice(0,ne);
   var next=parents.slice();               // 살아남은 부모는 그대로 다음 세대로
-  while(next.length<this.p.pop){
-    var par=parents[Math.floor(this.rng()*ne)];
-    var b=mutate(par.b,this.p.rate,this.rng);
-    next.push({b:b,s:fitness(b,this.dir)});
+  if(tr){
+    tr.dir=this.dir; tr.ne=ne; tr.kids=[];
+    tr.before=this.pop.map(function(o){ return {b:o.b,s:o.s}; });   // 선택 직전(환경 변화 반영 뒤) 집단
   }
+  while(next.length<this.p.pop){
+    var pi=Math.floor(this.rng()*ne), par=parents[pi];
+    var mt=tr?[]:null;
+    var b=mutate(par.b,this.p.rate,this.rng,mt);
+    var kid={b:b,s:fitness(b,this.dir)};
+    next.push(kid);
+    if(tr) tr.kids.push({p:pi,m:mt,o:kid});
+  }
+  if(tr) tr.parentObjs=parents;
   this.pop=next;
   this.gen++;
   this.record();
@@ -878,7 +877,7 @@ function updateViewControls(){
   $('btnLatest').disabled=(cur>=g);
 }
 function render(){
-  drawDish(); drawMain(); updateStats(); drawRace(); drawCompare(); updateViewControls();
+  drawDish(); drawMain(); updateStats(); drawRace(); drawCompare(); updateViewControls(); exRedraw();
 }
 
 /* ============================================================
@@ -1227,6 +1226,252 @@ if(window.matchMedia){
 new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(render);
 
+/* ============================================================
+   9. 한 단계씩 설명하며 진행
+   실제로 한 세대를 계산(sim.step에 기록 객체를 넘김)해 두고,
+   그 안에서 일어난 일을 8단계로 나눠 진짜 숫자로 보여 준다.
+   ============================================================ */
+var EX_STEPS=['지금 상태','목표 확인','환경 확인','선택','복제(유전)','돌연변이','점수 계산','다음 세대'];
+var ex=null, exTimer=null, exRaf=0;
+
+function exBegin(){
+  if(running) pause();
+  if(sim.gen>=MAXG){ setStatus('최대 '+MAXG+'세대까지만 진행할 수 있어요. 초기화하고 다시 시작해 주세요.'); return false; }
+  var raised=false;
+  if(sim.gen>=P.target){ setTarget(Math.min(MAXG,sim.gen+1),true); raised=true; }
+  viewGen=null; resetRace();
+  var g0=sim.gen, before0=sim.pop.map(function(o){ return {b:o.b,s:o.s}; });
+  var best0=sim.best[g0-1], mean0=sim.mean[g0-1], wasFlipped=sim.flipped||0;
+  var tr={};
+  sim.step(tr);                                          // 실제 계산은 여기서 한 번에 끝낸다
+  var kids=tr.kids, up=0, down=0, same=0, changed=0, noMut=0, gainMax=-Infinity, gainKid=null, pc=[];
+  for(var q=0;q<tr.ne;q++) pc.push(0);
+  kids.forEach(function(k){
+    var d=k.o.s-tr.before[k.p].s; k.d=d;
+    if(d>1e-9) up++; else if(d<-1e-9) down++; else same++;
+    changed+=k.m.length; if(!k.m.length) noMut++;
+    if(d>gainMax){ gainMax=d; gainKid=k; }
+    pc[k.p]++;
+  });
+  // 예시로 보여 줄 자손 3개: 가장 좋아진 자손 + 변이가 있는 자손
+  var ex3=[];
+  if(gainKid && gainKid.d>1e-9) ex3.push(gainKid);
+  kids.forEach(function(k){ if(ex3.length<3 && ex3.indexOf(k)<0 && k.m.length) ex3.push(k); });
+  kids.forEach(function(k){ if(ex3.length<3 && ex3.indexOf(k)<0) ex3.push(k); });
+  var topP=0; pc.forEach(function(v,i){ if(v>pc[topP]) topP=i; });
+  var newPop=sim.pop.slice(), bestKidRank=newPop.length;
+  kids.forEach(function(k){ var r=newPop.indexOf(k.o); if(r>=0 && r<bestKidRank) bestKidRank=r; });
+  ex={phase:0,max:0,g0:g0,before0:before0,best0:best0,mean0:mean0,wasFlipped:wasFlipped,tr:tr,ex3:ex3,
+    up:up,down:down,same:same,changed:changed,noMut:noMut,gainMax:gainMax,topP:topP,topPc:pc[topP],
+    newPop:newPop,best1:sim.best[sim.gen-1],bestKidRank:bestKidRank,raised:raised,done:false,
+    pop:sim.p.pop,elite:Math.round(sim.p.elite*100),rate:Math.round(sim.p.rate*1000)/10,cells:sim.n*sim.n,shiftAt:sim.shiftAt};
+  return true;
+}
+
+function exText(ph){
+  var e=ex, tr=e.tr, kidsN=tr.kids.length, b=function(t){ return '<b>'+t+'</b>'; };
+  switch(ph){
+  case 0: return '<p>지금은 '+b(e.g0+'세대')+'예요. 로봇 '+e.pop+'개가 점수가 높은 순서로 왼쪽 위부터 놓여 있어요(1등은 노란 테두리).</p>'+
+    '<p>최고 점수 '+b(fmt(e.best0))+', 평균 '+b(fmt(e.mean0))+'. 이 집단으로 '+b((e.g0+1)+'세대')+'를 만들어 볼게요.</p>'+
+    (e.raised?'<p class="ex-hint">목표 세대에 이미 도달해 있어서 목표를 '+P.target+'세대로 늘렸어요.</p>':'');
+  case 1: return '<p>목표는 '+b(P.target+'세대')+'인데 지금은 '+e.g0+'세대라 아직 멈추지 않아요. '+b('→ 계속 진행')+'</p><p>목표에 도달하면 바로 이 자리에서 진행이 멈추고 결과를 보여 줘요.</p>';
+  case 2:
+    if(tr.flippedNow) return '<p>'+b('바로 이번 '+e.g0+'세대에 환경이 바뀌어요!')+' 목표가 “오른쪽으로 빨리 가기”에서 “왼쪽으로 빨리 가기”로 뒤집혔어요.</p>'+
+      '<p>모든 로봇을 새 기준으로 다시 채점했더니 최고 점수가 '+fmt(e.best0)+' → '+b(fmt(tr.before[0].s))+'이 되었어요. 오른쪽으로 잘 가던 몸이 이제는 불리해진 거예요.</p>';
+    if(e.wasFlipped) return '<p>이미 '+e.wasFlipped+'세대에 환경이 바뀌어서 지금 목표는 '+b('“왼쪽으로 빨리 가기”')+'예요. 이번 세대에는 더 바뀌지 않아요.</p>';
+    if(e.shiftAt) return '<p>환경 변화는 '+b(e.shiftAt+'세대')+'에 일어나요. 지금은 '+e.g0+'세대라 해당 없어서, 목표는 그대로 '+b('“오른쪽으로 빨리 가기”')+'예요.</p>';
+    return '<p>환경 변화 실험이 꺼져 있어서 목표는 그대로 '+b('“오른쪽으로 빨리 가기”')+'예요.</p><p>그래서 수축 세포(빨강)가 몸 왼쪽(뒤)에 몰려 있어야 몸을 앞으로 밀 수 있고, 그런 로봇이 높은 점수를 받아요.</p>';
+  case 3: return '<p>점수 상위 '+b(e.elite+'%')+', 즉 '+b(tr.ne+'개')+'만 부모로 살아남아요(노란 테두리). 나머지 '+b((e.pop-tr.ne)+'개')+'는 사라져요.</p>'+
+    '<p>살아남은 로봇 중 가장 낮은 점수는 '+b(fmt(tr.before[tr.ne-1].s))+', 사라진 로봇 중 가장 높은 점수는 '+b(fmt(tr.before[tr.ne].s))+'예요. 이 경계가 선택의 기준이에요.'+
+    (fmt(tr.before[tr.ne-1].s)===fmt(tr.before[tr.ne].s)?' 경계의 두 점수가 거의 같을 때는 이미 줄 서 있던 순서대로 앞쪽이 살아남아요.':'')+'</p>'+
+    '<p>살아남은 부모는 바뀌지 않고 그대로 다음 세대에도 들어가요.</p>';
+  case 4: return '<p>빈자리 '+b(kidsN+'개')+'를 채울 때까지, 부모 '+tr.ne+'개 중 하나를 '+b('무작위로')+' 골라 몸을 그대로 복사해요. 자식이 부모를 닮는 “유전”이에요.</p>'+
+    '<p>이번에는 '+b((e.topP+1)+'등 부모')+'가 가장 많이 뽑혔어요('+e.topPc+'번). 아래는 자손 '+e.ex3.length+'개가 어느 부모에게서 왔는지 보여 줘요.</p>';
+  case 5:
+    if(e.rate===0) return '<p>돌연변이율이 '+b('0%')+'라서 복사본이 하나도 바뀌지 않았어요. 자손이 모두 부모와 똑같으니 새로운 몸이 생기지 않고, 진화도 멈춰요.</p>';
+    return '<p>복사본의 칸마다 '+b(e.rate+'%')+' 확률로 빈칸·피부·수축 중 하나를 다시 뽑아요(바뀐 칸에 노란 테두리).</p>'+
+      '<p>자손 '+kidsN+'개 × '+e.cells+'칸 = '+(kidsN*e.cells)+'칸 중 실제로 바뀐 칸은 '+b(e.changed+'칸')+'이에요. 다시 뽑았는데 원래와 같은 상태가 나오면 안 바뀐 것으로 쳐요. 한 칸도 안 바뀐 자손(부모와 똑같은 쌍둥이)은 '+b(e.noMut+'개')+'예요.</p>';
+  case 6: return '<p>새 자손마다 이동 점수를 계산해서 부모와 비교했어요.</p>'+
+    '<p>좋아진 자손 <b class="up">'+e.up+'개</b>, 나빠진 자손 <b class="down">'+e.down+'개</b>, 그대로인 자손 '+e.same+'개.</p>'+
+    (e.up>0?'<p>가장 크게 좋아진 자손은 '+b('+'+fmt(e.gainMax))+' 올랐어요.</p>':'<p>이번에는 부모보다 좋아진 자손이 없어요.</p>')+
+    (e.down>e.up?'<p>이렇게 대부분의 변이는 도움이 안 되거나 해로워요. 그래도 드물게 생기는 좋은 변이가 선택으로 쌓이면서 진화가 일어나요.</p>':'');
+  case 7:
+    var kidTop=e.bestKidRank===0;
+    return '<p>부모 '+tr.ne+'개와 자손 '+kidsN+'개를 합쳐 '+b((e.g0+1)+'세대')+' 로봇 '+e.pop+'개가 되었어요. 다시 점수 순으로 줄을 세웠어요(초록 점 = 새로 태어난 자손).</p>'+
+      (kidTop?'<p>'+b('새로운 1등이 태어났어요!')+' 최고 점수 '+fmt(tr.before[0].s)+' → '+b(fmt(e.best1))+'</p>'
+             :'<p>1등은 여전히 부모 세대의 로봇이에요. 부모가 그대로 살아남기 때문에 최고 점수는 내려가지 않아요('+b(fmt(e.best1))+'). 자손 중 가장 잘한 로봇은 '+(e.bestKidRank+1)+'등이에요.</p>')+
+      '<p>이제 '+(e.g0+1)+'세대에서 같은 과정을 다시 반복해요. 위의 그래프와 로봇 집단에도 반영했어요.</p>';
+  }
+  return '';
+}
+
+/* 그리기 */
+function exGridSize(W,n){ var cols=W<520?8:10, gap=6, pad=4, rs=(W-2*pad-(cols-1)*gap)/cols, rows=Math.ceil(n/cols);
+  return {cols:cols,gap:gap,pad:pad,rs:rs,h:Math.ceil(2*pad+rows*rs+(rows-1)*gap)}; }
+function exGrid(ctx,list,L,c,styleFn){
+  for(var i=0;i<list.length;i++){
+    var col=i%L.cols, row=Math.floor(i/L.cols), x=L.pad+col*(L.rs+L.gap), y=L.pad+row*(L.rs+L.gap), st=styleFn(i)||{};
+    ctx.globalAlpha=st.alpha==null?1:st.alpha;
+    drawRobot(ctx,list[i].b,x,y,L.rs,c,false);
+    ctx.globalAlpha=1;
+    if(st.ring){ ctx.strokeStyle=st.ring; ctx.lineWidth=st.rw||2.5; ctx.strokeRect(x-2,y-2,L.rs+4,L.rs+4); }
+    if(st.cross){ ctx.globalAlpha=st.cross; ctx.strokeStyle=c.muted; ctx.lineWidth=2; ctx.beginPath();
+      ctx.moveTo(x+5,y+5); ctx.lineTo(x+L.rs-5,y+L.rs-5); ctx.moveTo(x+L.rs-5,y+5); ctx.lineTo(x+5,y+L.rs-5); ctx.stroke(); ctx.globalAlpha=1; }
+    if(st.dot){ ctx.globalAlpha=st.dotA==null?1:st.dotA; ctx.fillStyle=st.dot; ctx.strokeStyle=c.panel; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x+L.rs-3,y+3,5.5,0,7); ctx.fill(); ctx.stroke(); ctx.globalAlpha=1; }
+  }
+}
+function exArrow(ctx,x0,y,x1,col,w){
+  ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=w||2.5; ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+  var d=x1>x0?1:-1; ctx.beginPath(); ctx.moveTo(x1+d*2,y); ctx.lineTo(x1-d*10,y-7); ctx.lineTo(x1-d*10,y+7); ctx.closePath(); ctx.fill();
+}
+function ease(t){ return 1-Math.pow(1-t,3); }
+function exDraw(t){
+  var cv=$('exCanvas'), W=Math.floor(cv.getBoundingClientRect().width); if(!W||!ex) return;
+  var e=ex, tr=e.tr, ph=e.phase, c=colors(), g, ctx, L, k=ease(t);
+  if(ph===0||ph===3||ph===7){
+    var list= ph===0?e.before0:(ph===3?tr.before:e.newPop);
+    L=exGridSize(W,list.length); g=prep(cv,L.h); if(!g) return; ctx=g.ctx;
+    if(ph===0) exGrid(ctx,list,L,c,function(i){ return i===0?{ring:c.best,rw:3}:null; });
+    if(ph===3) exGrid(ctx,list,L,c,function(i){ return i<tr.ne?{ring:c.best,rw:2.5}:{alpha:1-0.75*k,cross:k}; });
+    if(ph===7) exGrid(ctx,list,L,c,function(i){
+      var isParent=tr.parentObjs.indexOf(list[i])>=0;
+      return isParent?{ring:c.best,rw:2}:{dot:c.skin,dotA:k,ring:(i===0?c.skin:null),rw:3.5};
+    });
+    return;
+  }
+  if(ph===1){
+    g=prep(cv,120); if(!g) return; ctx=g.ctx;
+    var x0=20, x1=W-20, y=62, frac=Math.min(1,e.g0/P.target);
+    ctx.fillStyle=c.empty; ctx.fillRect(x0,y-7,x1-x0,14);
+    ctx.fillStyle=c.accent; ctx.fillRect(x0,y-7,(x1-x0)*frac*k,14);
+    ctx.font='700 15px '+FONT; ctx.textBaseline='bottom'; ctx.textAlign='left'; ctx.fillStyle=c.ink;
+    var mx=x0+(x1-x0)*frac*k; ctx.textAlign=frac>0.8?'right':'left'; ctx.fillText('지금 '+e.g0+'세대',mx,y-16);
+    ctx.textAlign='right'; ctx.textBaseline='top'; ctx.fillStyle=c.muted; ctx.font='500 13px '+FONT; ctx.fillText('목표 '+P.target+'세대',x1,y+16);
+    ctx.textAlign='left'; ctx.fillStyle=c.skin; ctx.font='700 14px '+FONT; ctx.fillText('아직 도달 안 함 → 계속',x0,y+16);
+    return;
+  }
+  if(ph===2){
+    g=prep(cv,160); if(!g) return; ctx=g.ctx;
+    var S=110, rx=Math.max(20,W/2-S/2), ry=28, robot=tr.before[0];
+    drawRobot(ctx,robot.b,rx,ry,S,c,false);
+    ctx.font='600 13px '+FONT; ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillStyle=c.muted;
+    ctx.fillText('지금 1등 로봇 · '+fmt(robot.s)+'점',rx+S/2,ry-6);
+    var left=tr.dir===-1, ay=ry+S/2, len=Math.min(120,rx-30);
+    if(len>30){
+      if(!left) exArrow(ctx,rx+S+14,ay,rx+S+14+len*k,c.skin,4);
+      else { exArrow(ctx,rx-14,ay,rx-14-len*k,c.muscle,4);
+        if(tr.flippedNow){ ctx.globalAlpha=0.35*(1-k)+0.15; exArrow(ctx,rx+S+14,ay,rx+S+14+len,c.muted,3); ctx.globalAlpha=1; } }
+      ctx.textBaseline='top'; ctx.fillStyle=left?c.muscle:c.skin; ctx.font='700 13px '+FONT;
+      ctx.fillText(left?'목표: 왼쪽':'목표: 오른쪽',left?rx-14-len/2:rx+S+14+len/2,ay+12);
+    }
+    return;
+  }
+  // 4 복제, 5 돌연변이, 6 점수: 부모 → 자손 예시
+  var list3=e.ex3, S2=Math.max(54,Math.min(92,Math.floor((W-140)/3))), rowH=S2+48, cx1=W*0.25, cx2=W*0.75;
+  g=prep(cv,list3.length*rowH+6); if(!g) return; ctx=g.ctx;
+  list3.forEach(function(kd,r){
+    var par=tr.before[kd.p], y0=r*rowH+26, px=cx1-S2/2, cxN=cx2-S2/2;
+    ctx.font='600 12.5px '+FONT; ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillStyle=c.muted;
+    ctx.fillText('부모 '+(kd.p+1)+'등 · '+fmt(par.s),cx1,y0-6);
+    drawRobot(ctx,par.b,px,y0,S2,c,false);
+    var ax0=cx1+S2/2+12, ax1=cx2-S2/2-12, ay=y0+S2/2;
+    if(ph===4){
+      var cx=cx1+(cx2-cx1)*k;
+      ctx.globalAlpha=0.35+0.65*k; drawRobot(ctx,par.b,cx-S2/2,y0,S2,c,false); ctx.globalAlpha=1;
+      if(k>0.6) exArrow(ctx,ax0,ay,ax1,c.accent,2);
+      ctx.fillStyle=c.muted; ctx.fillText('복사본',cx,y0-6);
+      ctx.textBaseline='top'; ctx.fillStyle=c.accent; ctx.fillText('그대로 복사',(ax0+ax1)/2,y0+S2+6);
+      return;
+    }
+    exArrow(ctx,ax0,ay,ax1,ph===5?c.best:c.accent,2);
+    drawRobot(ctx,kd.o.b,cxN,y0,S2,c,false);
+    var N=Math.round(Math.sqrt(kd.o.b.length)), cell=S2/N;
+    if(ph===5){
+      ctx.strokeStyle=c.best; ctx.lineWidth=2.5; ctx.globalAlpha=k;
+      kd.m.forEach(function(i){ ctx.strokeRect(cxN+(i%N)*cell+1,y0+Math.floor(i/N)*cell+1,cell-2.6,cell-2.6); });
+      ctx.globalAlpha=1;
+      ctx.fillStyle=c.muted; ctx.textBaseline='bottom'; ctx.fillText('자손 · 돌연변이 '+kd.m.length+'칸',cx2,y0-6);
+      ctx.textBaseline='top'; ctx.fillStyle=c.best; ctx.fillText(e.rate+'% 확률 변이',(ax0+ax1)/2,y0+S2+6);
+    } else {
+      var d=kd.d, col=d>1e-9?c.skin:(d<-1e-9?c.muscle:c.muted);
+      ctx.fillStyle=col; ctx.textBaseline='bottom'; ctx.fillText('자손 · '+fmt(kd.o.s*k+par.s*(1-k)),cx2,y0-6);
+      ctx.textBaseline='top'; ctx.font='700 14px '+FONT; ctx.fillText((d>1e-9?'+':'')+fmt(d)+(d>1e-9?' 좋아짐':(d<-1e-9?' 나빠짐':' 그대로')),(ax0+ax1)/2,y0+S2+6);
+    }
+  });
+}
+function exPlay(){
+  cancelAnimationFrame(exRaf);
+  if(reduceMotion){ exDraw(1); return; }
+  var t0=performance.now();
+  (function f(now){ var t=Math.min(1,(now-t0)/700); exDraw(t); if(t<1) exRaf=requestAnimationFrame(f); })(t0);
+}
+function exRedraw(){ if(ex && !$('explain').hidden){ cancelAnimationFrame(exRaf); exDraw(1); } }
+
+function exShow(){
+  var e=ex, ph=e.phase;
+  if(ph>e.max) e.max=ph;
+  if(ph===7 && !e.done){                               // 마지막 단계에서 화면(그래프·집단)에 반영
+    e.done=true; render(); setRunLabel();
+    if(sim.gen>=P.target) finish(); else setStatus('한 단계씩 설명하며 '+sim.gen+'세대까지 진행했어요.');
+  }
+  $('exGen').textContent=e.g0+'세대 → '+(e.g0+1)+'세대';
+  $('exTitle').textContent=(ph+1)+'. '+EX_STEPS[ph];
+  $('exText').innerHTML=exText(ph);
+  Array.prototype.forEach.call(document.querySelectorAll('#exSteps button'),function(b,i){
+    b.setAttribute('aria-current',i===ph?'step':'false'); b.disabled=i>e.max; b.classList.toggle('done',i<ph);
+  });
+  $('exNext').textContent= ph<7 ? '다음 단계 ▶ ('+(ph+2)+'/8)' : '다음 세대도 보기 ▶';
+  $('btnExplain').textContent= ph<7 ? '설명 계속: '+EX_STEPS[ph+1]+' ▶' : '다음 세대도 한 단계씩 ▶';
+  exPlay();
+  if(window.anime && !reduceMotion){ anime.remove('#exText'); anime({targets:'#exText',opacity:[0,1],translateY:[8,0],duration:450,easing:'easeOutExpo'}); }
+}
+function exAdvance(){
+  if(!ex || (ex.done && ex.phase>=7)){ if(!exBegin()){ exStopAuto(); return; } }
+  else ex.phase++;
+  exShow();
+}
+function exOpen(){
+  var sec=$('explain');
+  if(sec.hidden){ sec.hidden=false; }
+  var r=sec.getBoundingClientRect();
+  if(r.top<0||r.top>window.innerHeight*0.6) sec.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
+}
+function exCancel(){
+  if(ex && !ex.done){ ex.done=true; render(); setRunLabel(); }
+  ex=null; exStopAuto();
+  $('btnExplain').textContent='한 단계씩 설명하며 진행';
+  if(!$('explain').hidden){
+    $('exTitle').textContent='설명을 멈췄어요';
+    $('exText').innerHTML='<p>다른 버튼을 눌러서 설명을 멈췄어요. “다음 단계”를 누르면 지금 세대부터 다시 한 단계씩 보여 줘요.</p>';
+    $('exNext').textContent='처음부터 보기 ▶';
+    var cv=$('exCanvas'); prep(cv,1);
+  }
+}
+function exStopAuto(){ if(exTimer){ clearInterval(exTimer); exTimer=null; } $('exAuto').textContent='자동으로 보기'; $('exAuto').setAttribute('aria-pressed','false'); }
+
+(function(){
+  var ol=$('exSteps');
+  EX_STEPS.forEach(function(s,i){
+    var li=document.createElement('li'), b=document.createElement('button');
+    b.type='button'; b.innerHTML='<span>'+(i+1)+'</span>'+s; b.disabled=true;
+    b.addEventListener('click',function(){ if(ex && i<=ex.max){ exStopAuto(); ex.phase=i; exShow(); } });
+    li.appendChild(b); ol.appendChild(li);
+  });
+})();
+$('btnExplain').addEventListener('click',function(){ exOpen(); exAdvance(); });
+$('exNext').addEventListener('click',exAdvance);
+$('exAuto').addEventListener('click',function(){
+  if(exTimer){ exStopAuto(); return; }
+  this.textContent='자동 멈추기'; this.setAttribute('aria-pressed','true');
+  exAdvance(); exTimer=setInterval(exAdvance,4200);
+});
+$('exClose').addEventListener('click',function(){ exStopAuto(); if(ex && !ex.done){ ex.phase=7; exShow(); } $('explain').hidden=true; ex=null; $('btnExplain').textContent='한 단계씩 설명하며 진행'; });
+// 다른 조작을 하면 설명을 멈춘다 (이미 계산한 세대는 화면에 반영)
+['btnRun','btnStep','btnReset','btnAdv10','btnAdv50','shiftOn','seed','pop'].forEach(function(id){
+  $(id).addEventListener(id==='btnRun'||id.indexOf('btn')===0?'click':'change',function(){ if(ex) exCancel(); },true);
+});
+Array.prototype.forEach.call(document.querySelectorAll('.segbtn'),function(b){ b.addEventListener('click',function(){ if(ex) exCancel(); },true); });
+
 /* 시작 */
 if(window.innerWidth<=860) $('settings').open=false;
 updateSizeUI();
@@ -1429,165 +1674,6 @@ onFill($('raceNote'),function(el){
 function stagger(el){ anime({targets:el.children,opacity:[0,1],translateX:[-20,0],duration:700,easing:'easeOutExpo',delay:anime.stagger(80)}); }
 onFill($('cmpBody'),stagger);
 onFill($('cmpFind'),stagger);
-})();
-</script>
-
-<script>
-/* ============================================================
-   10. 진화 순서도 — 위의 Sim / step() 과 같은 순서를 보여 준다
-   ============================================================ */
-(function(){
-'use strict';
-function $(id){return document.getElementById(id);}
-var hasAnime=(typeof anime==='function') && document.documentElement.classList.contains('anim');
-
-// 지금 설정값 읽기
-function V(){
-  var seg=document.querySelector('.segbtn[aria-pressed="true"]');
-  var n=seg?+seg.getAttribute('data-n'):5, pop=+$('pop').value, elite=+$('elite').value;
-  return {n:n,cells:n*n,pop:pop,rate:+$('rate').value,elite:elite,ne:Math.max(2,Math.floor(pop*elite/100)),
-    target:+$('target').value,seed:$('seed').value,shiftOn:$('shiftOn').checked,shiftGen:+$('shiftGen').value,
-    gen:+$('stGen').textContent||1,best:$('stBest').textContent,mean:$('stMean').textContent,ceil:$('stCeil').textContent,
-    cap:Math.round(0.32*n*n),pen:Math.round(0.40*n*n)};
-}
-function chips(list){ return '<div class="now">'+list.map(function(c){ return '<span>'+c[0]+' <b>'+c[1]+'</b></span>'; }).join('')+'</div>'; }
-
-// 단계 정의: kind = term(시작·끝) / proc(처리) / dec(판단)
-var S={
-  start:{kind:'term',no:'S',title:'시작',sum:function(v){return '시드 '+v.seed;},
-    info:function(v){return '<p>시드 번호 <b>'+v.seed+'</b>로 난수 생성기를 준비합니다. 이후 나오는 모든 “무작위”는 이 생성기에서 나오므로, 같은 시드와 같은 설정이면 결과가 똑같이 다시 나옵니다.</p>';}},
-  init:{kind:'proc',no:'1',title:'첫 집단 만들기',sum:function(v){return '로봇 '+v.pop+'개 · '+v.n+'×'+v.n+' 격자';},
-    info:function(v){return '<p>'+v.n+'×'+v.n+'='+v.cells+'칸짜리 몸을 가진 로봇을 <b>'+v.pop+'개</b> 만듭니다. 각 칸은 서로 상관없이 다음 확률로 정해집니다.</p><ul><li>빈칸 30%</li><li>일반 세포(피부) 40%</li><li>수축 세포(심근) 30%</li></ul>';}},
-  score:{kind:'proc',no:'2',title:'이동 점수 계산',sum:function(v){return '새로 생긴 로봇마다 · 수축 세포 기준 '+v.cap+'~'+v.pen+'개';},
-    info:function(v){return '<p>로봇마다 “오른쪽으로 얼마나 빨리 갈까”를 점수로 매깁니다.</p><div class="formula">점수 = 추진력 × 연결 비율 − 낭비 감점</div><ul>'+
-      '<li><b>추진력</b> = (전체 세포의 평균 가로 위치 − 수축 세포의 평균 가로 위치) × min(수축 세포 수, '+v.cap+') ÷ '+v.cap+'. 수축 세포가 왼쪽(뒤)에 몰릴수록 커집니다.</li>'+
-      '<li><b>연결 비율</b> = 가장 큰 덩어리의 세포 수 ÷ 전체 세포 수. 상하좌우로 붙은 세포끼리 한 덩어리입니다.</li>'+
-      '<li><b>낭비 감점</b> = 0.03 × (수축 세포 수 − '+v.pen+'). 수축 세포가 '+v.pen+'개를 넘을 때만 깎습니다.</li>'+
-      '<li>세포나 수축 세포가 하나도 없으면 0점입니다. 기본 환경에서는 음수 점수를 0으로 자릅니다.</li></ul>'+
-      '<p>이미 점수가 있는 부모는 다시 계산하지 않고, 새로 만든 로봇만 계산합니다.</p>';}},
-  record:{kind:'proc',no:'3',title:'점수 순 정렬·기록',sum:function(v){return '최고 '+v.best+' · 평균 '+v.mean;},
-    info:function(v){return '<p>집단을 점수가 높은 순서로 정렬하고, 이 세대의 <b>최고 점수</b>와 <b>평균 점수</b>를 기록합니다. “세대별 이동 점수” 그래프의 두 선과 “지난 세대 보기”가 이 기록으로 그려집니다.</p>'+
-      chips([['지금 최고',v.best],['평균',v.mean]]);}},
-  goal:{kind:'dec',no:'4',title:'목표 세대에 도달했나?',sum:function(v){return '지금 '+v.gen+'세대 / 목표 '+v.target+'세대';},yes:'end',
-    info:function(v){return '<p>지금 <b>'+v.gen+'세대</b>, 목표는 <b>'+v.target+'세대</b>입니다.</p><ul><li><b>예</b> → 진행을 멈추고 결과를 보여 줍니다.</li><li><b>아니오</b> → 다음 세대를 만들러 5번으로 갑니다.</li></ul><p>“10세대 진행”, “50세대 진행”을 누르면 목표가 모자랄 때 자동으로 늘어납니다.</p>';}},
-  shift:{kind:'dec',no:'5',title:'환경이 바뀌는 세대인가?',sum:function(v){return v.shiftOn?(v.shiftGen+'세대에서 한 번 “예”'):'환경 변화 실험 꺼짐 → 항상 “아니오”';},yes:'flip',
-    info:function(v){return v.shiftOn
-      ? '<p>환경 변화 실험이 켜져 있어서, 지금 세대가 <b>'+v.shiftGen+'세대</b>일 때 딱 한 번 “예”가 됩니다. 그 밖에는 “아니오”로 바로 6번(선택)으로 갑니다.</p>'
-      : '<p>지금은 환경 변화 실험이 <b>꺼져</b> 있어서 항상 “아니오”입니다. 설정에서 켜면 지정한 세대에 한 번 “예”가 됩니다.</p>';}},
-  select:{kind:'proc',no:'6',title:'선택: 부모 고르기',sum:function(v){return '상위 '+v.elite+'% → 부모 '+v.ne+'개';},
-    info:function(v){return '<p>점수 상위 <b>'+v.elite+'%</b>, 즉 <b>'+v.ne+'개</b>만 부모로 남기고 나머지 '+(v.pop-v.ne)+'개는 버립니다(적어도 2개는 남김).</p>'+
-      '<p>부모는 바뀌지 않고 그대로 다음 세대에도 들어갑니다(엘리트 보존). 그래서 환경이 바뀌지 않는 한 최고 점수는 내려가지 않습니다.</p>';}},
-  breed:{kind:'proc',no:'7',title:'번식과 돌연변이',sum:function(v){return '자손 '+(v.pop-v.ne)+'개 · 칸마다 '+v.rate+'% 변이';},
-    info:function(v){return '<p>빈자리 <b>'+(v.pop-v.ne)+'개</b>가 찰 때까지 되풀이합니다.</p><ol><li>부모 '+v.ne+'개 중 하나를 무작위로 고릅니다.</li><li>그 몸을 그대로 복사합니다(유전).</li>'+
-      '<li>복사본의 칸마다 <b>'+v.rate+'%</b> 확률로 빈칸·피부·수축 중 하나를 무작위로 다시 뽑습니다(변이). 원래와 같은 상태가 다시 뽑힐 수도 있어요.</li></ol>'+
-      (v.rate===0?'<p><b>지금 돌연변이율이 0%라서 자손이 부모와 똑같습니다.</b> 새로운 재료가 없으니 진화가 멈춥니다.</p>':'')+
-      '<p>그다음 세대 번호를 1 올리고, 새 자손의 점수를 매기러 <b>2번으로 돌아갑니다</b>.</p>';}},
-  end:{kind:'term',no:'끝',title:'멈추고 결과 보기',sum:function(v){return '확인된 최고점 '+v.ceil;},end:true,
-    info:function(v){return '<p>목표 세대에 도달해 멈춥니다. 1세대 최고 점수에서 얼마나 올랐는지 알려 주고, 이 몸 크기에서 확인된 최고점(<b>'+v.ceil+'</b>)에 도달했는지도 확인합니다.</p><p>이어서 진화하려면 목표 세대를 늘리면 됩니다.</p>';}},
-  flip:{kind:'proc',no:'5-1',title:'방향 뒤집고 다시 채점',sum:function(){return '오른쪽 → 왼쪽 · 끝나면 6번으로';},
-    info:function(){return '<p>목표 방향을 <b>오른쪽 → 왼쪽</b>으로 뒤집고, 지금 집단 전체를 새 기준으로 다시 채점합니다.</p><ul><li>추진력의 부호가 반대가 되므로, 지금까지 잘 달리던 로봇은 음수 점수를 받습니다.</li><li>이때부터는 음수 점수를 0으로 자르지 않습니다. 자르면 모두 0점이 되어 누가 더 나은지 고를 근거가 사라지기 때문입니다.</li></ul><p>그다음 6번(선택)으로 이어집니다.</p>';}}
-};
-var MAIN=['start','init','score','record','goal','shift','select','breed'];
-
-// 그리기
-var flow=$('flow'), nodes={}, open=null, detail=document.createElement('div');
-detail.className='fdetail'; detail.setAttribute('role','region');
-function nodeEl(id){
-  var s=S[id], b=document.createElement('button');
-  b.type='button'; b.className='fnode k-'+s.kind+(s.end?' k-end':''); b.setAttribute('aria-expanded','false'); b.setAttribute('data-id',id);
-  b.innerHTML='<span class="fn-no">'+(s.kind==='dec'?'<em>'+s.no+'</em>':s.no)+'</span><span><b>'+s.title+'</b><small></small></span>';
-  b.addEventListener('click',function(){ stopTour(); toggle(id); });
-  nodes[id]=b; return b;
-}
-MAIN.forEach(function(id,i){
-  if(i){
-    var c=document.createElement('div'); c.className='fconn';
-    var lbl=S[MAIN[i-1]].kind==='dec'?'<span>아니오</span>':'';
-    c.innerHTML='<i>'+lbl+'</i><i></i><i></i>'; flow.appendChild(c);
-  }
-  var row=document.createElement('div'); row.className='frow'; row.setAttribute('data-row',id);
-  var main=document.createElement('div'); main.appendChild(nodeEl(id)); row.appendChild(main);
-  if(S[id].yes){
-    var y=document.createElement('div'); y.className='yes'; y.innerHTML='<span>예</span>'; row.appendChild(y);
-    var side=document.createElement('div'); side.className='side'; side.appendChild(nodeEl(S[id].yes)); row.appendChild(side);
-  }
-  flow.appendChild(row);
-});
-function refresh(){
-  var v=V();
-  Object.keys(nodes).forEach(function(id){ nodes[id].querySelector('small').textContent=S[id].sum(v); });
-  if(open){ detail.innerHTML=S[open].info(v); detail.style.setProperty('--k',getComputedStyle(nodes[open]).getPropertyValue('--k')); }
-}
-function toggle(id,force){
-  if(open===id && !force){ close(); return; }
-  if(open) nodes[open].setAttribute('aria-expanded','false');
-  open=id; nodes[id].setAttribute('aria-expanded','true');
-  var row=nodes[id].closest('.frow'); row.appendChild(detail); refresh();
-  if(hasAnime){ anime.remove(detail); anime({targets:detail,opacity:[0,1],translateY:[-8,0],duration:450,easing:'easeOutExpo'}); }
-  drawLoop();
-}
-function close(){ if(!open) return; nodes[open].setAttribute('aria-expanded','false'); open=null; detail.remove(); drawLoop(); }
-
-// 다음 세대로 돌아가는 고리 (7번 → 2번)
-var svg=$('flowLines'), loop=$('flowLoop'), lbl=$('flowLoopLbl');
-function drawLoop(){
-  var f=flow.getBoundingClientRect(), a=nodes.breed.getBoundingClientRect(), b=nodes.score.getBoundingClientRect();
-  if(!f.width) return;
-  var x0=a.left-f.left, y0=a.top-f.top+a.height/2, x1=b.left-f.left, y1=b.top-f.top+b.height/2, gx=10, r=10;
-  loop.setAttribute('d','M'+x0+' '+y0+' H'+(gx+r)+' Q'+gx+' '+y0+' '+gx+' '+(y0-r)+' V'+(y1+r)+' Q'+gx+' '+y1+' '+(gx+r)+' '+y1+' H'+(x1-2));
-  loop.setAttribute('marker-end','url(#flowArrow)');
-  var my=(y0+y1)/2;
-  lbl.setAttribute('transform','translate('+(gx-5)+' '+my+') rotate(-90)'); lbl.setAttribute('text-anchor','middle');
-}
-if(window.ResizeObserver) new ResizeObserver(function(){ requestAnimationFrame(drawLoop); }).observe(flow);
-else addEventListener('resize',drawLoop);
-
-// 설정이 바뀌면 칸 속 숫자도 바뀐다
-['input','change','click'].forEach(function(ev){ document.addEventListener(ev,function(e){ if(!flow.contains(e.target)) setTimeout(refresh,0); }); });
-new MutationObserver(refresh).observe($('stGen'),{childList:true,characterData:true,subtree:true});
-
-// 진행 중이면 세대마다 지나가는 단계가 빛난다
-var lastGen=1, busy=false;
-function pulse(ids,gap){
-  if(busy) return; busy=true;
-  ids.forEach(function(id,i){
-    setTimeout(function(){ nodes[id].classList.add('pulse'); setTimeout(function(){ nodes[id].classList.remove('pulse'); },gap*1.6); },i*gap);
-  });
-  setTimeout(function(){ busy=false; },ids.length*gap);
-}
-new MutationObserver(function(){
-  if($('viewOut').textContent.indexOf('지난 세대')>=0) return;
-  var g=+$('stGen').textContent||1;
-  if(g===1){ pulse(['start','init','score','record'],140); }
-  else if(g>lastGen){
-    var v=V(), path=['goal','shift'];
-    if(v.shiftOn && lastGen<v.shiftGen && g>=v.shiftGen) path.push('flip');
-    pulse(path.concat(['select','breed','score','record']),90);
-  }
-  lastGen=g;
-}).observe($('stGen'),{childList:true,characterData:true,subtree:true});
-new MutationObserver(function(){
-  if($('status').textContent.indexOf('도달해서 멈췄어요')>=0){ busy=false; pulse(['goal','end'],260); }
-}).observe($('status'),{childList:true});
-
-// 순서 따라가기
-var TOUR=['start','init','score','record','goal','shift','flip','select','breed','score','record','goal','end'], tourT=null, tourI=0, btn=$('btnTour');
-function stopTour(){ if(tourT){ clearTimeout(tourT); tourT=null; btn.textContent='▶ 순서 따라가기'; } }
-function tourStep(){
-  var id=TOUR[tourI];
-  if(id==='flip' && !$('shiftOn').checked){ tourI++; id=TOUR[tourI]; }
-  toggle(id,true); nodes[id].classList.add('pulse');
-  setTimeout(function(){ nodes[id].classList.remove('pulse'); },900);
-  tourI++;
-  if(tourI<TOUR.length) tourT=setTimeout(tourStep,3200);
-  else { tourT=null; btn.textContent='▶ 다시 따라가기'; }
-}
-btn.addEventListener('click',function(){
-  if(tourT){ stopTour(); return; }
-  tourI=0; btn.textContent='■ 멈추기'; tourStep();
-});
-
-refresh(); drawLoop();
 })();
 </script>
 </body>
