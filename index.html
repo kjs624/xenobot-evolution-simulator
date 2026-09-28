@@ -849,21 +849,35 @@ function updateStats(){
   $('stRatio').textContent= (f>0.01 && b>=0) ? ('×'+(b/f).toFixed(1)) : '-';
 }
 
+// 보고 있는 세대의 목표 방향: 환경이 바뀐 세대부터는 왼쪽(-1)
+function raceDir(){ return (sim.flipped && vg()>=sim.flipped) ? -1 : 1; }
+function raceLanes(){
+  var d=raceDir(), cur=viewPop()[0];
+  // 점수는 그 세대 환경 기준으로 다시 계산한다 (1세대 로봇도 바뀐 환경에서 채점)
+  return [{label:'1세대 최고',b:sim.first.b,s:fitness(sim.first.b,d)},
+          {label:(viewGen!==null?viewGen+'세대 최고':'지금 최고'),b:cur.b,s:fitness(cur.b,d)}];
+}
 function drawRace(){
   var cv=$('race'), g=prep(cv,150); if(!g) return;
-  var ctx=g.ctx, w=g.w, h=g.h, c=colors();
-  var lanes=[{label:'1세대 최고',r:sim.first},{label:(viewGen!==null?viewGen+'세대 최고':'지금 최고'),r:viewPop()[0]}];
+  var ctx=g.ctx, w=g.w, h=g.h, c=colors(), d=raceDir(), left=d===-1;
+  var lanes=raceLanes();
   var rs=44, padX=14, laneH=75, track=w-2*padX-rs;
-  ctx.strokeStyle=c.line; ctx.lineWidth=1; ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(w-padX,6); ctx.lineTo(w-padX,h-6); ctx.stroke(); ctx.setLineDash([]);
+  // 결승선: 오른쪽이 목표면 오른쪽 끝, 환경이 바뀌면 왼쪽 끝
+  var fx=left?padX:w-padX;
+  ctx.strokeStyle=left?c.muscle:c.line; ctx.lineWidth=left?2:1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(fx,6); ctx.lineTo(fx,h-6); ctx.stroke(); ctx.setLineDash([]);
   lanes.forEach(function(ln,i){
     var y=i*laneH;
-    ctx.fillStyle=c.muted; ctx.font='500 13px '+FONT; ctx.textAlign='left'; ctx.textBaseline='top';
-    ctx.fillText(ln.label+'  점수 '+fmt(ln.r.s),padX,y+6);
+    ctx.fillStyle=c.muted; ctx.font='500 13px '+FONT; ctx.textAlign=left?'right':'left'; ctx.textBaseline='top';
+    ctx.fillText(ln.label+'  점수 '+fmt(ln.s),left?w-padX:padX,y+6);
+    if(i===0){
+      ctx.fillStyle=left?c.muscle:c.skin; ctx.font='700 12px '+FONT; ctx.textAlign=left?'left':'right';
+      ctx.fillText(left?'← 목표: 왼쪽 (환경 변화 뒤)':'목표: 오른쪽 →',left?padX+8:w-padX-8,y+6);
+    }
     var ry=y+24;
-    ctx.strokeStyle=c.line; ctx.beginPath(); ctx.moveTo(padX,ry+rs+2.5); ctx.lineTo(w-padX,ry+rs+2.5); ctx.stroke();
-    var frac=Math.min(1,race.frac*(Math.max(0,ln.r.s)/(CEIL[sim.n]*1.04)));   // 음수 점수(환경 변화 뒤)는 제자리로 그린다
-    drawRobot(ctx,ln.r.b,padX+track*frac,ry,rs,c,race.running);
+    ctx.strokeStyle=c.line; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(padX,ry+rs+2.5); ctx.lineTo(w-padX,ry+rs+2.5); ctx.stroke();
+    var frac=Math.min(1,race.frac*(Math.max(0,ln.s)/(CEIL[sim.n]*1.04)));   // 목표 방향 점수가 0 이하면 출발선에 그대로
+    drawRobot(ctx,ln.b,left?padX+track*(1-frac):padX+track*frac,ry,rs,c,race.running);
   });
 }
 
@@ -993,12 +1007,13 @@ function resetRace(){
   $('raceNote').textContent='';
 }
 function finishRace(){
-  var a=sim.first.s, b=viewPop()[0].s, who=(viewGen!==null?viewGen+'세대':'지금');
-  $('raceNote').textContent = (sim.flipped && b<0)
-    ? '환경이 바뀐 뒤라서 지금 최고 로봇의 점수가 음수예요. 이 경주는 오른쪽으로 달리는 것만 그려서 제자리에 있습니다.'
+  var L=raceLanes(), a=L[0].s, b=L[1].s, who=(viewGen!==null?viewGen+'세대':'지금'), left=raceDir()===-1;
+  var pre=left?'환경이 바뀌어 왼쪽으로 달리는 경주예요. ':'';
+  $('raceNote').textContent = pre + (b<0.01
+    ? who+' 최고 로봇은 아직 '+(left?'왼쪽':'오른쪽')+'으로 거의 가지 못해요(점수 '+fmt(b)+'). 세대가 더 지나면 새 방향에 적응해요.'
     : a<0.01
-    ? '1세대 최고 로봇은 거의 움직이지 못했어요.'
-    : '같은 시간에 '+who+' 최고 로봇이 '+(b/a).toFixed(1)+'배 멀리 갔어요.';
+    ? '1세대 최고 로봇은 '+(left?'왼쪽으로 ':'')+'거의 움직이지 못했어요'+(left?'(바뀐 환경 점수 '+fmt(a)+').':'.')
+    : '같은 시간에 '+who+' 최고 로봇이 '+(b/a).toFixed(1)+'배 멀리 갔어요.');
 }
 function startRace(){
   if(running) pause();
@@ -1235,15 +1250,19 @@ var EX_STEPS=['지금 상태','목표 확인','환경 확인','선택','복제(�
 var ex=null, exTimer=null, exRaf=0;
 
 function exBegin(){
-  if(running) pause();
-  if(sim.gen>=MAXG){ setStatus('최대 '+MAXG+'세대까지만 진행할 수 있어요. 초기화하고 다시 시작해 주세요.'); return false; }
-  var raised=false;
-  if(sim.gen>=P.target){ setTarget(Math.min(MAXG,sim.gen+1),true); raised=true; }
-  viewGen=null; resetRace();
-  var g0=sim.gen, before0=sim.pop.map(function(o){ return {b:o.b,s:o.s}; });
-  var best0=sim.best[g0-1], mean0=sim.mean[g0-1], wasFlipped=sim.flipped||0;
+  // 위의 시뮬레이션과 따로, 같은 시드·같은 설정으로 예시 실험을 돌린다 (위 화면에는 영향 없음)
+  var s, info;
+  if(ex && ex.sim && ex.sim.gen<MAXG){ s=ex.sim; info=ex.info; info.cont=true; }   // "다음 세대도 보기": 같은 예시를 이어서
+  else {
+    var p={rate:P.rate,pop:P.pop,elite:P.elite,target:P.target,n:P.n,shiftAt:P.shiftAt}, seed=seedValue();
+    info=exPickGen(p,seed); info.seed=seed; info.cont=false;
+    s=new Sim(p,seed,false);
+    while(s.gen<info.g) s.step();
+  }
+  var g0=s.gen, before0=s.pop.map(function(o){ return {b:o.b,s:o.s}; });
+  var best0=s.best[g0-1], mean0=s.mean[g0-1], wasFlipped=s.flipped||0;
   var tr={};
-  sim.step(tr);                                          // 실제 계산은 여기서 한 번에 끝낸다
+  s.step(tr);                                            // 이 세대의 계산은 여기서 한 번에 끝내고, 단계별로 나눠 보여 준다
   var kids=tr.kids, up=0, down=0, same=0, changed=0, noMut=0, gainMax=-Infinity, gainKid=null, pc=[];
   for(var q=0;q<tr.ne;q++) pc.push(0);
   kids.forEach(function(k){
@@ -1259,13 +1278,29 @@ function exBegin(){
   kids.forEach(function(k){ if(ex3.length<3 && ex3.indexOf(k)<0 && k.m.length) ex3.push(k); });
   kids.forEach(function(k){ if(ex3.length<3 && ex3.indexOf(k)<0) ex3.push(k); });
   var topP=0; pc.forEach(function(v,i){ if(v>pc[topP]) topP=i; });
-  var newPop=sim.pop.slice(), bestKidRank=newPop.length;
+  var newPop=s.pop.slice(), bestKidRank=newPop.length;
   kids.forEach(function(k){ var r=newPop.indexOf(k.o); if(r>=0 && r<bestKidRank) bestKidRank=r; });
   ex={phase:0,max:0,g0:g0,before0:before0,best0:best0,mean0:mean0,wasFlipped:wasFlipped,tr:tr,ex3:ex3,
     up:up,down:down,same:same,changed:changed,noMut:noMut,gainMax:gainMax,topP:topP,topPc:pc[topP],
-    newPop:newPop,best1:sim.best[sim.gen-1],bestKidRank:bestKidRank,raised:raised,done:false,
-    pop:sim.p.pop,elite:Math.round(sim.p.elite*100),rate:Math.round(sim.p.rate*1000)/10,cells:sim.n*sim.n,shiftAt:sim.shiftAt};
+    newPop:newPop,best1:s.best[s.gen-1],bestKidRank:bestKidRank,sim:s,info:info,target:s.p.target,
+    pop:s.p.pop,elite:Math.round(s.p.elite*100),rate:Math.round(s.p.rate*1000)/10,cells:s.n*s.n,shiftAt:s.shiftAt};
   return true;
+}
+// 예시로 쓸 세대 고르기: 목표 세대의 20~30% 구간에서
+// 자손이 새 1등이 되는 세대를 먼저 찾고, 없으면 좋아진 자손이 가장 많은 세대를 쓴다
+function exPickGen(p,seed){
+  var T=p.target, lo=Math.max(1,Math.round(T*0.2)), hi=Math.max(lo,Math.round(T*0.3));
+  var s=new Sim(p,seed,false), best=-1, fallback=lo;
+  while(s.gen<lo) s.step();
+  while(s.gen<=hi && s.gen<MAXG){
+    var g=s.gen, prev=s.best[g-1], tr={};
+    s.step(tr);
+    var champ=s.best[s.gen-1]>prev+1e-9 && tr.kids.some(function(k){ return k.o===s.pop[0]; });
+    if(champ) return {g:g,lo:lo,hi:hi,why:'champ'};
+    var up=tr.kids.filter(function(k){ return k.o.s>tr.before[k.p].s+1e-9; }).length;
+    if(up>best){ best=up; fallback=g; }
+  }
+  return {g:fallback,lo:lo,hi:hi,why:'up'};
 }
 
 function exText(ph){
@@ -1273,8 +1308,13 @@ function exText(ph){
   switch(ph){
   case 0: return '<p>지금은 '+b(e.g0+'세대')+'예요. 로봇 '+e.pop+'개가 점수가 높은 순서로 왼쪽 위부터 놓여 있어요(1등은 노란 테두리).</p>'+
     '<p>최고 점수 '+b(fmt(e.best0))+', 평균 '+b(fmt(e.mean0))+'. 이 집단으로 '+b((e.g0+1)+'세대')+'를 만들어 볼게요.</p>'+
-    (e.raised?'<p class="ex-hint">목표 세대에 이미 도달해 있어서 목표를 '+P.target+'세대로 늘렸어요.</p>':'');
-  case 1: return '<p>목표는 '+b(P.target+'세대')+'인데 지금은 '+e.g0+'세대라 아직 멈추지 않아요. '+b('→ 계속 진행')+'</p><p>목표에 도달하면 바로 이 자리에서 진행이 멈추고 결과를 보여 줘요.</p>';
+    (e.info.cont
+      ? '<p class="ex-hint">같은 예시 실험을 이어서 다음 세대를 보여 드려요.</p>'
+      : '<p class="ex-hint">예시: 시드 '+e.info.seed+'과 지금 설정으로 따로 돌린 실험에서, 목표('+e.target+'세대)의 20~30%인 '+e.info.lo+'~'+e.info.hi+'세대 중 '+
+        (e.info.why==='champ'?'자손이 새 1등이 되는':'좋아진 자손이 가장 많은')+' '+e.g0+'세대를 골랐어요. 위의 시뮬레이션에는 영향을 주지 않아요.</p>');
+  case 1: return e.g0>=e.target
+    ? '<p>목표 '+b(e.target+'세대')+'에 도달했어요. 실제 진행이라면 여기서 멈추지만, 예시라서 한 세대 더 보여 드릴게요.</p>'
+    : '<p>목표는 '+b(e.target+'세대')+'인데 지금은 '+e.g0+'세대라 아직 멈추지 않아요. '+b('→ 계속 진행')+'</p><p>목표에 도달하면 바로 이 자리에서 진행이 멈추고 결과를 보여 줘요.</p>';
   case 2:
     if(tr.flippedNow) return '<p>'+b('바로 이번 '+e.g0+'세대에 환경이 바뀌어요!')+' 목표가 “오른쪽으로 빨리 가기”에서 “왼쪽으로 빨리 가기”로 뒤집혔어요.</p>'+
       '<p>모든 로봇을 새 기준으로 다시 채점했더니 최고 점수가 '+fmt(e.best0)+' → '+b(fmt(tr.before[0].s))+'이 되었어요. 오른쪽으로 잘 가던 몸이 이제는 불리해진 거예요.</p>';
@@ -1300,7 +1340,7 @@ function exText(ph){
     return '<p>부모 '+tr.ne+'개와 자손 '+kidsN+'개를 합쳐 '+b((e.g0+1)+'세대')+' 로봇 '+e.pop+'개가 되었어요. 다시 점수 순으로 줄을 세웠어요(초록 점 = 새로 태어난 자손).</p>'+
       (kidTop?'<p>'+b('새로운 1등이 태어났어요!')+' 최고 점수 '+fmt(tr.before[0].s)+' → '+b(fmt(e.best1))+'</p>'
              :'<p>1등은 여전히 부모 세대의 로봇이에요. 부모가 그대로 살아남기 때문에 최고 점수는 내려가지 않아요('+b(fmt(e.best1))+'). 자손 중 가장 잘한 로봇은 '+(e.bestKidRank+1)+'등이에요.</p>')+
-      '<p>이제 '+(e.g0+1)+'세대에서 같은 과정을 다시 반복해요. 위의 그래프와 로봇 집단에도 반영했어요.</p>';
+      '<p>이제 '+(e.g0+1)+'세대에서 같은 과정을 다시 반복해요. 이 과정이 세대마다 되풀이되면서 “세대별 이동 점수” 그래프처럼 점수가 올라가요.</p>';
   }
   return '';
 }
@@ -1410,11 +1450,7 @@ function exRedraw(){ if(ex && !$('explain').hidden){ cancelAnimationFrame(exRaf)
 function exShow(){
   var e=ex, ph=e.phase;
   if(ph>e.max) e.max=ph;
-  if(ph===7 && !e.done){                               // 마지막 단계에서 화면(그래프·집단)에 반영
-    e.done=true; render(); setRunLabel();
-    if(sim.gen>=P.target) finish(); else setStatus('한 단계씩 설명하며 '+sim.gen+'세대까지 진행했어요.');
-  }
-  $('exGen').textContent=e.g0+'세대 → '+(e.g0+1)+'세대';
+  $('exGen').textContent='예시 · 시드 '+e.info.seed+' · '+e.g0+'세대 → '+(e.g0+1)+'세대';
   $('exTitle').textContent=(ph+1)+'. '+EX_STEPS[ph];
   $('exText').innerHTML=exText(ph);
   Array.prototype.forEach.call(document.querySelectorAll('#exSteps button'),function(b,i){
@@ -1426,7 +1462,7 @@ function exShow(){
   if(window.anime && !reduceMotion){ anime.remove('#exText'); anime({targets:'#exText',opacity:[0,1],translateY:[8,0],duration:450,easing:'easeOutExpo'}); }
 }
 function exAdvance(){
-  if(!ex || (ex.done && ex.phase>=7)){ if(!exBegin()){ exStopAuto(); return; } }
+  if(!ex || ex.phase>=7){ if(!exBegin()){ exStopAuto(); return; } }
   else ex.phase++;
   exShow();
 }
@@ -1437,12 +1473,11 @@ function exOpen(){
   if(r.top<0||r.top>window.innerHeight*0.6) sec.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
 }
 function exCancel(){
-  if(ex && !ex.done){ ex.done=true; render(); setRunLabel(); }
   ex=null; exStopAuto();
   $('btnExplain').textContent='한 단계씩 설명하며 진행';
   if(!$('explain').hidden){
-    $('exTitle').textContent='설명을 멈췄어요';
-    $('exText').innerHTML='<p>다른 버튼을 눌러서 설명을 멈췄어요. “다음 단계”를 누르면 지금 세대부터 다시 한 단계씩 보여 줘요.</p>';
+    $('exTitle').textContent='설정이 바뀌었어요';
+    $('exText').innerHTML='<p>시드나 설정이 바뀌어서 예시를 멈췄어요. “처음부터 보기”를 누르면 바뀐 설정으로 예시를 새로 골라 보여 줘요.</p>';
     $('exNext').textContent='처음부터 보기 ▶';
     var cv=$('exCanvas'); prep(cv,1);
   }
@@ -1465,12 +1500,12 @@ $('exAuto').addEventListener('click',function(){
   this.textContent='자동 멈추기'; this.setAttribute('aria-pressed','true');
   exAdvance(); exTimer=setInterval(exAdvance,4200);
 });
-$('exClose').addEventListener('click',function(){ exStopAuto(); if(ex && !ex.done){ ex.phase=7; exShow(); } $('explain').hidden=true; ex=null; $('btnExplain').textContent='한 단계씩 설명하며 진행'; });
-// 다른 조작을 하면 설명을 멈춘다 (이미 계산한 세대는 화면에 반영)
-['btnRun','btnStep','btnReset','btnAdv10','btnAdv50','shiftOn','seed','pop'].forEach(function(id){
-  $(id).addEventListener(id==='btnRun'||id.indexOf('btn')===0?'click':'change',function(){ if(ex) exCancel(); },true);
+$('exClose').addEventListener('click',function(){ exStopAuto(); $('explain').hidden=true; ex=null; $('btnExplain').textContent='한 단계씩 설명하며 진행'; });
+// 예시를 만든 설정(시드·크기·비율·목표·환경 변화)이 바뀌면 예시를 멈춘다. 위의 시뮬레이션 조작과는 상관없다.
+['shiftOn','shiftGen','seed','pop','rate','elite','target','targetRange'].forEach(function(id){
+  $(id).addEventListener('change',function(){ if(ex) exCancel(); });
 });
-Array.prototype.forEach.call(document.querySelectorAll('.segbtn'),function(b){ b.addEventListener('click',function(){ if(ex) exCancel(); },true); });
+Array.prototype.forEach.call(document.querySelectorAll('.segbtn,.chip'),function(b){ b.addEventListener('click',function(){ if(ex) exCancel(); }); });
 
 /* 시작 */
 if(window.innerWidth<=860) $('settings').open=false;
