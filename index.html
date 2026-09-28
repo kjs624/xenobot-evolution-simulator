@@ -3,260 +3,248 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light">
 <title>제노봇 진화 시뮬레이터</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#FFFFFF; --panel:#FFFFFF; --panel2:#F6F7F9; --ink:#0E1116; --muted:#667085; --line:#E7E9EE; --line2:#D5D9E0;
-  --skin:#14B37D; --muscle:#EF4679; --empty:#EDEFF3;
-  --accent:#2F5BFF; --accent-ink:#FFFFFF; --best:#F5A524;
-  --s0:#98A2B3; --s1:#2F5BFF; --s2:#14B37D; --s3:#8B5CF6; --s4:#F07B1A; --s5:#0EA5B7;
-  --sans:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --mono:"JetBrains Mono","Pretendard Variable",ui-monospace,monospace;
-  --serif:var(--sans);
-  --topbar:68px;
-  color-scheme:light;
+  --bg:#F3F5FA; --panel:#FFFFFF; --panel2:#EAEFF8; --ink:#0B1426; --muted:#5A6781; --line:#DCE2EE;
+  --skin:#1FAF7B; --muscle:#EC3A72; --empty:#E3E8F1;
+  --accent:#3A5BFF; --accent-ink:#FFFFFF; --best:#F0A20E;
+  --s0:#7A869C; --s1:#3A5BFF; --s2:#16A571; --s3:#8B5CF6; --s4:#F07B1A; --s5:#0EA5B7;
+  --blob:.30; --shadow:0 20px 50px -30px rgba(20,30,70,.35);
+  --display:"Space Grotesk","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  --mono:"JetBrains Mono","Noto Sans KR",ui-monospace,monospace;
+  --serif:var(--display);
+  --sans:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#060A13; --panel:#0C1322; --panel2:#0F1A30; --ink:#E9F0FF; --muted:#8D9BB7; --line:#1C2840;
+    --skin:#34E0A1; --muscle:#FF4F8B; --empty:#15203A;
+    --accent:#6C8CFF; --accent-ink:#FFFFFF; --best:#FFC53D;
+    --s0:#95A1B8; --s1:#6C8CFF; --s2:#34E0A1; --s3:#B08CFF; --s4:#FF9F4A; --s5:#3FD6E6;
+    --blob:.42; --shadow:0 24px 60px -30px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#060A13; --panel:#0C1322; --panel2:#0F1A30; --ink:#E9F0FF; --muted:#8D9BB7; --line:#1C2840;
+  --skin:#34E0A1; --muscle:#FF4F8B; --empty:#15203A;
+  --accent:#6C8CFF; --accent-ink:#FFFFFF; --best:#FFC53D;
+  --s0:#95A1B8; --s1:#6C8CFF; --s2:#34E0A1; --s3:#B08CFF; --s4:#FF9F4A; --s5:#3FD6E6;
+  --blob:.42; --shadow:0 24px 60px -30px rgba(0,0,0,.8);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:calc(var(--topbar) + 16px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 15.5px/1.65 var(--sans);-webkit-text-size-adjust:100%;
-  word-break:keep-all;overflow-wrap:break-word;letter-spacing:-.005em}
-::selection{background:color-mix(in srgb,var(--accent) 18%,transparent)}
-:where(button,input,summary,a):focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:2px}
-.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--sans);-webkit-text-size-adjust:100%;word-break:keep-all;overflow-wrap:break-word}
+.wrap{max-width:1120px;margin:0 auto;padding:32px 20px 64px}
 
-/* ---------- 상단 막대 ---------- */
-.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,#fff 86%,transparent);backdrop-filter:saturate(1.6) blur(14px);
-  -webkit-backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--line)}
-.topbar-in{max-width:1240px;margin:0 auto;padding:12px 24px;min-height:var(--topbar);display:flex;align-items:center;gap:20px}
-.brand{display:flex;align-items:center;gap:12px;min-width:0;margin-right:auto}
-.logo{width:38px;height:38px;flex:none;border-radius:11px;background:var(--ink);padding:7px;overflow:visible}
-.logo rect{transform-box:fill-box;transform-origin:center}
-.brand h1{margin:0;font:750 17px/1.25 var(--sans);letter-spacing:-.02em}
-.brand p{margin:0;font:500 12.5px/1.3 var(--mono);color:var(--muted)}
-.btns{display:flex;flex-wrap:wrap;gap:6px}
-.btn{position:relative;overflow:hidden;font:600 14px/1 var(--sans);padding:11px 15px;min-height:40px;border-radius:10px;
-  border:1px solid var(--line2);background:#fff;color:var(--ink);cursor:pointer;transition:border-color .15s,background-color .15s,box-shadow .2s}
-.btn:hover:not(:disabled){background:var(--panel2);border-color:#B9C0CC}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff;padding:11px 18px;min-width:128px}
-.btn.primary:hover:not(:disabled){background:#252B36;border-color:#252B36}
-.btn.primary.is-running{background:var(--muscle);border-color:var(--muscle)}
-.btn.primary.is-running::before{content:"";display:inline-block;width:7px;height:7px;margin-right:8px;border-radius:50%;
-  background:#fff;vertical-align:1px;animation:blink 1s ease-in-out infinite}
-.btn.accent{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.accent:hover:not(:disabled){background:#2449E0;border-color:#2449E0}
-@keyframes blink{50%{opacity:.25}}
-.ripple{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:currentColor;opacity:.3;pointer-events:none}
-@media (max-width:900px){
-  .topbar{position:static}
-  .topbar-in{flex-direction:column;align-items:stretch;gap:12px;padding:14px 16px}
-  .btns{display:grid;grid-template-columns:repeat(4,1fr)}
-  .btns .primary{grid-column:1/-1}
-  .btns .btn{white-space:nowrap;padding:11px 6px}
-  .brand p{font-family:var(--sans)}
+header h1{font:700 clamp(28px,4.6vw,44px)/1.2 var(--serif);letter-spacing:-.01em;margin:0 0 14px}
+header p{max-width:62ch;margin:0;color:var(--muted)}
+
+.layout{display:grid;grid-template-columns:288px minmax(0,1fr);gap:44px;margin-top:36px;align-items:start}
+.controls{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);max-height:calc(100vh - 32px);overflow-y:auto;padding-right:4px}
+.main{min-width:0}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr;gap:28px}
+  .controls{position:static;max-height:none;overflow:visible;padding-right:0}
 }
-@media (max-width:420px){ .btns{grid-template-columns:repeat(2,1fr)} }
 
-/* ---------- 틀 ---------- */
-.shell{max-width:1240px;margin:0 auto;padding:24px 24px 72px}
-@media (max-width:640px){ .shell{padding:16px 16px 56px} }
+h2{font:700 21px/1.35 var(--serif);margin:0 0 4px}
+.sub{margin:0 0 14px;color:var(--muted);font-size:14.5px;max-width:64ch}
+section{margin:0 0 48px}
 
-/* 결과 줄 */
-.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid var(--line);border-radius:18px;overflow:hidden;margin:0 0 12px;background:#fff}
-.kpis>div{padding:16px 18px;border-left:1px solid var(--line);position:relative}
-.kpis>div:first-child{border-left:0}
-.kpis dt{font:500 12px/1.4 var(--sans);color:var(--muted);margin:0 0 4px}
-.kpis dd{display:inline-block;margin:0;font:700 28px/1.15 var(--mono);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-.kpis .k-best{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 6%,#fff),#fff)}
-.kpis .k-best dd{color:var(--accent)}
-.kpis>div.bump{background:color-mix(in srgb,var(--best) 14%,#fff);transition:background-color .15s}
-.kpis>div{transition:background-color .6s}
-@media (max-width:900px){ .kpis{grid-template-columns:repeat(3,1fr)} .kpis>div:nth-child(4){border-left:0} .kpis>div:nth-child(n+4){border-top:1px solid var(--line)} }
-@media (max-width:520px){ .kpis{grid-template-columns:1fr 1fr} .kpis>div{border-left:0!important;border-top:1px solid var(--line)} .kpis>div:nth-child(-n+2){border-top:0} .kpis>div:nth-child(even){border-left:1px solid var(--line)!important} .kpis dd{font-size:23px} }
-.goal{display:flex;align-items:center;gap:14px;margin:0 0 6px;font-size:13px;color:var(--muted)}
-.goal .track{flex:1;height:6px;border-radius:99px;background:var(--empty);overflow:hidden}
-.goal .track i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--skin),var(--accent));transition:width .25s}
-.goal b{font:600 12.5px/1 var(--mono);color:var(--ink);white-space:nowrap}
-.notes{display:flex;flex-wrap:wrap;gap:4px 18px;margin:0 0 20px;min-height:1.6em}
-.notes .note{margin:0}
+/* 조작 */
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 22px}
+.btn{font:600 15px/1 var(--sans);padding:13px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;min-height:44px}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn.primary{grid-column:1/-1;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-size:16px}
+.btn.primary:hover:not(:disabled){filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+:where(button,input,summary):focus-visible{outline:3px solid var(--best);outline-offset:2px}
 
-/* 카드 격자 */
-.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;align-items:start}
-.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px 22px 20px;min-width:0;
-  box-shadow:0 1px 2px rgba(16,24,40,.04);transition:box-shadow .25s,border-color .25s}
-.card:hover{box-shadow:0 12px 32px -18px rgba(16,24,40,.22);border-color:var(--line2)}
-.c-dish{grid-column:1/9}
-.c-settings{grid-column:9/13;grid-row:1/span 3;position:sticky;top:calc(var(--topbar) + 16px);max-height:calc(100vh - var(--topbar) - 32px);overflow:auto;overflow-x:hidden}
-.c-chart{grid-column:1/9}
-.c-race{grid-column:1/9}
-.c-cmp{grid-column:1/-1}
-.c-rules{grid-column:1/-1}
-@media (max-width:1024px){
-  .c-dish,.c-chart,.c-race,.c-cmp,.c-rules,.c-settings{grid-column:1/-1;grid-row:auto}
-  .c-settings{position:static;max-height:none;order:-1}
-}
-@media (max-width:640px){ .card{padding:18px 16px;border-radius:16px} .bento{gap:12px} }
-
-.card-h{display:flex;align-items:center;gap:10px;margin:0 0 4px}
-.tag{font:600 11px/1 var(--mono);letter-spacing:.04em;color:var(--muted);background:var(--panel2);border:1px solid var(--line);padding:5px 7px;border-radius:6px}
-h2{font:700 19px/1.35 var(--sans);letter-spacing:-.02em;margin:0}
-.sub{margin:0 0 16px;color:var(--muted);font-size:14px;max-width:70ch}
-.note{margin:0;font-size:14px;color:var(--muted)}
-.err{color:var(--muscle);font-weight:600}
-
-/* ---------- 설정 ---------- */
-.c-settings>h2{margin:0 0 16px}
+details.settings>summary{cursor:pointer;font:700 17px/1.4 var(--serif);margin:0 0 14px;list-style:none;padding:2px 0}
+details.settings>summary::-webkit-details-marker{display:none}
+details.settings>summary::after{content:"접기";float:right;font:400 13px/1.9 var(--sans);color:var(--muted)}
+details.settings:not([open])>summary::after{content:"펼치기"}
 .ctl{margin:0 0 18px}
 .ctl .chk{display:flex;gap:8px;align-items:flex-start;font-weight:500;font-size:14px;line-height:1.5;margin-top:6px}
 .ctl .chk input{margin-top:3px;accent-color:var(--accent)}
-.ctl .row,.viewctl .row,.sizectl .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.ctl label,.viewctl label,.tgt label,.sizectl .lbl{font-weight:600;font-size:14px}
-output,.sizectl .val{font:600 12.5px/1.4 var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;margin:10px 0 4px;accent-color:var(--ink)}
-.ctl input[type=number],.field input[type=text],.field input[type=number]{width:100%;font:500 14.5px/1.4 var(--sans);padding:9px 11px;margin-top:6px;border:1px solid var(--line2);border-radius:9px;background:#fff;color:var(--ink)}
-.ctl small,.field small,.sizectl small,.tgt small{display:block;color:var(--muted);font-size:12.5px;line-height:1.55;margin-top:4px}
-.sizectl,.tgt{margin:0 0 20px;padding:0 0 20px;border-bottom:1px solid var(--line)}
-.sizectl .row{margin:0 0 8px}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--panel2);border-radius:12px}
-.segbtn{font:600 14px/1 var(--mono);padding:10px 6px;min-height:38px;border:0;border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;transition:background-color .2s,color .2s,box-shadow .2s}
-.segbtn:hover:not(:disabled){color:var(--ink)}
-.segbtn[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(16,24,40,.12)}
-.segbtn:disabled{opacity:.5;cursor:not-allowed}
-.tgt .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.tgt input[type=number]{width:78px;font:600 14px/1.4 var(--mono);padding:6px 8px;border:1px solid var(--line2);border-radius:8px;background:#fff;color:var(--ink);text-align:right}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{font:600 12.5px/1 var(--mono);padding:8px 12px;border-radius:999px;border:1px solid var(--line2);background:#fff;color:var(--ink);cursor:pointer;min-height:32px;transition:background-color .2s,color .2s,border-color .2s}
-.chip:hover{border-color:var(--ink)}
-.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
-details.settings>summary{cursor:pointer;font:700 15px/1.4 var(--sans);margin:0 0 14px;list-style:none;padding:2px 0}
-details.settings>summary::-webkit-details-marker{display:none}
-details.settings>summary::after{content:"접기";float:right;font:500 12px/2 var(--sans);color:var(--muted)}
-details.settings:not([open])>summary::after{content:"펼치기"}
-.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:4px 0 6px;padding:14px 0 0;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.legend i{display:inline-block;width:12px;height:12px;border-radius:3px}
-.legend i.ring{background:transparent;border:2px solid var(--best)}
+.ctl .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ctl label{font-weight:600;font-size:15px}
+.ctl output{font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.ctl input[type=range]{width:100%;margin:8px 0 2px;accent-color:var(--accent)}
+.ctl input[type=number],.field input[type=text],.field input[type=number]{width:100%;font:400 15px/1.4 var(--sans);padding:9px 10px;margin-top:6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.ctl small,.field small{display:block;color:var(--muted);font-size:13px;line-height:1.5;margin-top:2px}
 
-/* ---------- 시각화 ---------- */
-canvas{display:block;width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 0;padding:14px 0 0;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:3px}
+.legend i.ring{background:transparent;border:2px solid var(--best);border-radius:3px}
+
+/* 몸 크기 */
+.sizectl{margin:0 0 22px}
+.sizectl .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 8px}
+.sizectl .lbl{font-weight:600;font-size:15px}
+.sizectl .val{font-weight:600;color:var(--accent);font-size:14px;font-variant-numeric:tabular-nums}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.segbtn{font:600 15px/1 var(--sans);padding:12px 8px;min-height:44px;border:0;border-left:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
+.segbtn:first-child{border-left:0}
+.segbtn:hover:not(:disabled){background:var(--empty)}
+.segbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.segbtn:disabled{opacity:.5;cursor:not-allowed}
+.sizectl small{display:block;color:var(--muted);font-size:13px;line-height:1.5;margin-top:8px}
+
+/* 세대 조정 */
+.btns .wide{grid-column:1/-1}
+.tgt{margin:0 0 22px}
+.tgt .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tgt label{font-weight:600;font-size:15px}
+.tgt input[type=number]{width:88px;font:600 15px/1.4 var(--sans);padding:7px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.tgt input[type=range]{width:100%;margin:10px 0 8px;accent-color:var(--accent)}
+.tgt small{display:block;color:var(--muted);font-size:13px;line-height:1.5;margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 13.5px/1 var(--sans);padding:8px 13px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;min-height:36px;font-variant-numeric:tabular-nums}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .viewctl{margin:0 0 14px}
-.viewbtns{display:flex;flex-wrap:wrap;gap:6px}
-.viewbtns .btn{padding:8px 12px;font-size:13px;min-height:34px}
-.dish{position:relative;overflow:hidden;background:var(--panel2);border-radius:14px;padding:12px}
-.scan{position:absolute;left:0;right:0;top:0;height:80px;pointer-events:none;opacity:0;
-  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--accent) 12%,transparent) 75%,color-mix(in srgb,var(--accent) 55%,transparent) 76%,transparent 78%)}
-.cap{margin:10px 0 0;min-height:1.65em;font-size:13px;color:var(--muted)}
-.lgrow{margin:8px 0 10px}
-.lg{display:inline-flex;align-items:center;gap:6px;margin-right:16px;font-size:13px;color:var(--muted)}
+.viewctl .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.viewctl label{font-weight:600;font-size:15px}
+.viewctl output{font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.viewctl input[type=range]{width:100%;margin:8px 0 10px;accent-color:var(--accent)}
+.viewbtns{display:flex;flex-wrap:wrap;gap:8px}
+.viewbtns .btn{padding:10px 14px;font-size:14px;min-height:40px}
+
+/* 시각화 */
+canvas{display:block;width:100%}
+.dish{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}
+.cap{margin:10px 0 0;min-height:1.65em;font-size:14px;color:var(--muted)}
+.plot{border-bottom:1px solid var(--line);padding-bottom:6px}
+.lg{display:inline-flex;align-items:center;gap:6px;margin-right:16px;font-size:14px;color:var(--muted)}
 .lg i{display:inline-block;width:18px;height:0;border-top:3px solid}
 .lg i.dash{border-top-style:dashed;border-top-width:2px}
-.race{background:var(--panel2);border-radius:14px;padding:10px 12px}
-.row-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0}
+.lgrow{margin:0 0 6px}
+.stats{display:flex;flex-wrap:wrap;gap:6px 32px;margin:14px 0 0}
+.stats div{min-width:64px}
+.stats dt{font-size:13px;color:var(--muted)}
+.stats dd{margin:0;font:700 22px/1.3 var(--serif);font-variant-numeric:tabular-nums}
+.race{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 8px}
+.row-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:12px 0 0}
+.row-actions .btn{padding:11px 18px}
+.note{margin:0;font-size:14.5px;color:var(--muted)}
 
 /* 비교 실험 */
 .formgrid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:14px;align-items:end;margin:0 0 14px}
-.field label{font-weight:600;font-size:14px}
-@media (max-width:640px){ .formgrid{grid-template-columns:1fr 1fr} .formgrid .field:first-child,.formgrid .btn{grid-column:1/-1} }
-progress{width:100%;height:6px;accent-color:var(--accent);margin:0 0 6px}
-.cmp-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
-@media (max-width:900px){ .cmp-grid{grid-template-columns:1fr} }
-.tablewrap{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:420px;font-size:13.5px;font-variant-numeric:tabular-nums}
-th,td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--line)}
+.field label{font-weight:600;font-size:15px}
+@media (max-width:640px){.formgrid{grid-template-columns:1fr 1fr}.formgrid .field:first-child{grid-column:1/-1}}
+progress{width:100%;height:8px;accent-color:var(--accent);margin:0 0 6px}
+.tablewrap{overflow-x:auto;margin:14px 0 0}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line)}
 th:first-child,td:first-child{text-align:left}
-thead th{font:600 11.5px/1.3 var(--mono);color:var(--muted);background:var(--panel2)}
-thead th:first-child{border-radius:8px 0 0 8px} thead th:last-child{border-radius:0 8px 8px 0}
-td{font-family:var(--mono);font-size:13px}
-.findings{margin:14px 0 0;padding-left:1.2em;font-size:14px}
+th{font-weight:600;color:var(--muted);font-size:13.5px}
+.findings{margin:14px 0 0;padding-left:1.2em;font-size:15px}
 .findings li{margin:0 0 4px}
+.err{color:var(--muscle);font-weight:500}
 
 /* 규칙 */
-.rules-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
-@media (max-width:1024px){ .rules-grid{grid-template-columns:1fr 1fr} }
-@media (max-width:640px){ .rules-grid{grid-template-columns:1fr} }
-.rule{background:var(--panel2);border-radius:14px;padding:16px 16px 6px;font-size:13.5px}
-.rule h3{display:flex;align-items:center;gap:8px;font:700 14.5px/1.4 var(--sans);margin:0 0 8px}
-.rule h3 span{font:700 11px/1 var(--mono);color:#fff;background:var(--ink);border-radius:6px;padding:4px 6px}
-.rule ol,.rule ul{margin:0 0 10px;padding-left:1.15em}
-.rule li{margin:0 0 6px}
-.foot{font-size:12.5px;color:var(--muted);margin:14px 0 0}
+.rules ol,.rules ul{margin:0 0 14px;padding-left:1.3em;max-width:66ch}
+.rules li{margin:0 0 6px}
+.rules h3{font:700 16px/1.4 var(--sans);margin:18px 0 6px}
+.foot{font-size:13.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:8px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-.confetti{position:fixed;left:0;top:0;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:60}
+/* ============ 디자인: 생체발광 실험실 ============ */
+body{background:var(--bg)}
+.wrap{padding-top:40px}
+::selection{background:color-mix(in srgb,var(--muscle) 35%,transparent)}
+
+/* 스크롤 진행 막대 */
+.progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:50;transform-origin:0 50%;transform:scaleX(0);
+  background:linear-gradient(90deg,var(--skin),var(--accent),var(--muscle));pointer-events:none}
+
+/* 제목 줄 */
+.pagehead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin:0 0 22px}
+.pagehead h1{margin:0;font:700 clamp(22px,2.6vw,28px)/1.2 var(--display);letter-spacing:-.03em}
+.pagehead p{margin:0;font:500 13px/1.4 var(--mono);color:var(--muted)}
+
+/* 카드 */
+.controls,.main section{background-color:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);
+  background-image:radial-gradient(520px circle at var(--mx,-999px) var(--my,-999px),color-mix(in srgb,var(--accent) 10%,transparent),transparent 60%)}
+.controls{padding:20px 20px 10px;overflow-x:hidden}
+.main section{padding:28px 28px 26px;margin:0 0 26px}
+@media (max-width:640px){ .main section{padding:22px 18px} .controls{padding:18px 16px 8px} }
+.layout{margin-top:0}
+.main{counter-reset:sec}
+.main h2{display:flex;align-items:center;gap:12px;font:700 23px/1.3 var(--display);letter-spacing:-.02em;margin:0 0 8px}
+.main h2::before{counter-increment:sec;content:counter(sec,decimal-leading-zero);flex:none;
+  font:500 12px/1 var(--mono);padding:7px 9px;border-radius:8px;color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 13%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+details.settings>summary{font:700 18px/1.4 var(--display)}
+
+/* 버튼 */
+.btn{position:relative;overflow:hidden;border-radius:12px;transition:border-color .15s,box-shadow .25s,background-color .2s}
+.btn:hover:not(:disabled){border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+.btn.primary{border:0;color:#fff;
+  background:linear-gradient(120deg,var(--accent),color-mix(in srgb,var(--accent) 45%,var(--muscle)) 60%,var(--muscle));background-size:200% 100%;
+  box-shadow:0 12px 28px -12px color-mix(in srgb,var(--accent) 80%,transparent);transition:background-position .5s,box-shadow .25s}
+.btn.primary:hover:not(:disabled){background-position:100% 0;filter:none;box-shadow:0 16px 34px -10px color-mix(in srgb,var(--muscle) 70%,transparent)}
+.btn.ghost{background:color-mix(in srgb,var(--panel) 70%,transparent);backdrop-filter:blur(8px)}
+.btn.primary.is-running::before{content:"";display:inline-block;width:8px;height:8px;margin-right:9px;border-radius:50%;
+  background:currentColor;vertical-align:1px;animation:blink 1s ease-in-out infinite}
+.btn.primary.is-running{animation:glow 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
+@keyframes glow{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--muscle) 22%,transparent),0 16px 34px -10px var(--muscle)}}
+.ripple{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:currentColor;opacity:.35;pointer-events:none}
+.chip,.segbtn{transition:border-color .15s,background-color .2s,color .2s}
+.segbtn[aria-pressed="true"],.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.seg{border-radius:12px}
+.ctl output,.tgt output,.viewctl output,.sizectl .val{font-family:var(--mono);font-size:13.5px;font-weight:500}
+
+/* 통계 */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px}
+.stats div{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;transition:border-color .4s,background-color .4s,box-shadow .4s}
+.stats dt{font:500 11.5px/1.4 var(--mono)}
+.stats dd{display:inline-block;font:700 26px/1.25 var(--display);letter-spacing:-.02em}
+.stats div.bump{border-color:var(--best);background:color-mix(in srgb,var(--best) 14%,var(--panel2));box-shadow:0 0 24px -6px var(--best)}
+.dish{position:relative;overflow:hidden;background:var(--panel2);border-radius:18px}
+.scan{position:absolute;left:0;right:0;top:0;height:90px;pointer-events:none;opacity:0;
+  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--skin) 22%,transparent) 70%,color-mix(in srgb,var(--skin) 70%,transparent) 71%,transparent 73%)}
+.race{border-radius:14px;background:var(--panel2);padding:10px 12px}
+.plot{border-bottom:0}
+th{font-family:var(--mono);font-weight:500;font-size:12px}
+.confetti{position:fixed;left:0;top:0;width:9px;height:9px;border-radius:2px;pointer-events:none;z-index:60}
 
 /* 등장 애니메이션 전 상태 (anime.js가 불러와졌을 때만) */
-.anim .reveal>*{opacity:0}
-.anim .kpis:not(.in)>div{opacity:0}
-@media (prefers-reduced-motion:reduce){ .btn.primary.is-running::before{animation:none} }
+.anim .reveal>*,.anim .pagehead:not(.in){opacity:0}
+@media (prefers-reduced-motion:reduce){ .btn.primary.is-running,.btn.primary.is-running::before,.eyebrow .dot{animation:none} }
 </style>
 <script>
 if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)) document.documentElement.classList.add('anim');
 </script>
 </head>
 <body>
-<header class="topbar">
-  <div class="topbar-in">
-    <div class="brand">
-      <svg class="logo" id="logoBot" viewBox="0 0 24 24" aria-hidden="true"></svg>
-      <div>
-        <h1>제노봇 진화 시뮬레이터</h1>
-        <p><span id="introSize">5×5</span> 격자 로봇 · 유전 알고리즘으로 “오른쪽으로 빨리 가기” 진화</p>
-      </div>
-    </div>
-    <div class="btns" role="group" aria-label="진행">
-      <button id="btnRun" class="btn primary" type="button">진화 시작</button>
-      <button id="btnStep" class="btn" type="button">한 세대</button>
-      <button id="btnAdv10" class="btn" type="button">+10세대</button>
-      <button id="btnAdv50" class="btn" type="button">+50세대</button>
-      <button id="btnReset" class="btn" type="button">초기화</button>
-    </div>
-  </div>
-</header>
+<div class="progress" id="scrollProg" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="pagehead">
+    <h1>제노봇 진화 시뮬레이터</h1>
+    <p><span id="introSize">5×5</span> 격자 로봇 · 유전 알고리즘으로 “오른쪽으로 빨리 가기” 진화</p>
+  </header>
 
-<main class="shell" id="main">
-  <dl class="kpis" aria-live="off">
-    <div><dt>세대</dt><dd id="stGen">1</dd></div>
-    <div class="k-best"><dt>최고 점수</dt><dd id="stBest">0.00</dd></div>
-    <div><dt>평균 점수</dt><dd id="stMean">0.00</dd></div>
-    <div><dt>1세대 최고 대비</dt><dd id="stRatio">-</dd></div>
-    <div><dt id="stCeilLbl">확인된 최고점</dt><dd id="stCeil">-</dd></div>
-  </dl>
-  <div class="goal" aria-hidden="true"><span>목표 세대까지</span><div class="track"><i id="goalFill"></i></div><b id="goalTxt">1 / 100</b></div>
-  <div class="notes">
-    <p class="note" id="status" role="status" aria-live="polite"></p>
-    <p class="note" id="ceilNote"></p>
-  </div>
-
-  <div class="bento">
-    <section class="card c-dish" aria-labelledby="h-pop">
-      <div class="card-h"><span class="tag">01</span><h2 id="h-pop">세대별 로봇 보기</h2></div>
-      <p class="sub">점수가 높은 순서로 왼쪽 위부터 놓이고, 수축 세포(빨강)가 세대가 지날수록 왼쪽으로 모입니다. 슬라이더로 지나온 세대를 볼 수 있어요.</p>
-      <div class="viewctl">
-        <div class="row"><label for="view">보고 있는 세대</label><output id="viewOut" for="view">1 / 1세대</output></div>
-        <input id="view" type="range" min="1" max="1" step="1" value="1" disabled>
-        <div class="viewbtns">
-          <button id="btnFirst" class="btn" type="button" disabled>1세대로</button>
-          <button id="btnPrev" class="btn" type="button" disabled>이전 세대</button>
-          <button id="btnNext" class="btn" type="button" disabled>다음 세대</button>
-          <button id="btnLatest" class="btn" type="button" disabled>최신 세대로</button>
-        </div>
+  <div class="layout">
+    <aside class="controls" aria-label="시뮬레이션 설정">
+      <div class="btns">
+        <button id="btnRun" class="btn primary" type="button">진화 시작</button>
+        <button id="btnStep" class="btn" type="button">한 세대 진행</button>
+        <button id="btnReset" class="btn" type="button">초기화</button>
+        <button id="btnAdv10" class="btn" type="button">10세대 진행</button>
+        <button id="btnAdv50" class="btn" type="button">50세대 진행</button>
       </div>
-      <div class="dish">
-        <canvas id="dish" role="img" aria-label="현재 세대의 로봇 집단"></canvas>
-        <i class="scan" id="scan" aria-hidden="true"></i>
-      </div>
-      <p class="cap" id="dishCap"></p>
-    </section>
 
-    <aside class="card c-settings" aria-label="시뮬레이션 설정">
-      <h2>설정</h2>
       <div class="sizectl" role="group" aria-labelledby="sizeLbl">
         <div class="row"><span id="sizeLbl" class="lbl">몸 크기</span><span id="sizeOut" class="val">5×5 (25칸)</span></div>
         <div class="seg">
@@ -279,11 +267,11 @@ if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))
           <button class="chip" type="button" data-target="200" aria-pressed="false">200</button>
           <button class="chip" type="button" data-target="500" aria-pressed="false">500</button>
         </div>
-        <small>이 세대에 도달하면 자동으로 멈춥니다(2~1000). “+10세대”처럼 한꺼번에 진행하면 목표 세대가 자동으로 늘어납니다.</small>
+        <small>이 세대에 도달하면 자동으로 멈춥니다. 2에서 1000 사이로 정할 수 있어요. “10세대 진행”처럼 한꺼번에 진행하면 목표 세대가 자동으로 늘어납니다.</small>
       </div>
 
       <details class="settings" id="settings" open>
-        <summary>세부 설정</summary>
+        <summary>설정</summary>
         <div class="ctl">
           <div class="row"><label for="rate">돌연변이율</label><output id="rateOut" for="rate">5%</output></div>
           <input id="rate" type="range" min="0" max="50" step="1" value="5">
@@ -306,7 +294,7 @@ if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))
         <div class="ctl" id="shiftCtl">
           <div class="row"><label for="shiftOn">환경 변화 실험</label><output id="shiftOut" for="shiftOn">꺼짐</output></div>
           <label class="chk"><input id="shiftOn" type="checkbox"> 지정한 세대에서 목표 방향을 오른쪽에서 왼쪽으로 뒤집기</label>
-          <div class="row" style="margin-top:8px"><label for="shiftGen" style="font-weight:500;font-size:13.5px">바뀌는 세대</label>
+          <div class="row" style="margin-top:8px"><label for="shiftGen" style="font-weight:500;font-size:14px">바뀌는 세대</label>
             <span><input id="shiftGen" type="number" min="2" max="900" step="1" value="100" inputmode="numeric" disabled style="width:72px"> 세대</span></div>
           <small>켜면 그 세대에서 “오른쪽으로 빨리 가기”가 “왼쪽으로 빨리 가기”로 바뀝니다. 지금까지 진화한 로봇은 새 기준에서 점수가 음수가 되고, 그 뒤 집단이 다시 적응하는 과정을 그래프로 볼 수 있어요. 켜거나 끄면 1세대부터 새로 시작합니다. 목표 세대는 바뀌는 세대보다 충분히 크게 정해 주세요.</small>
         </div>
@@ -315,7 +303,8 @@ if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))
           <input id="seed" type="number" min="0" max="999999" step="1" value="2026" inputmode="numeric">
           <small>처음 로봇 집단을 정하는 번호입니다. 같은 번호와 같은 설정이면 결과가 같아서, 보고서에 적어 두면 다시 재현할 수 있어요.</small>
         </div>
-        <p class="note" style="font-size:12.5px">돌연변이율과 살아남는 비율은 진행 중에 바꿔도 다음 세대부터 적용됩니다. 집단 크기와 시드는 1세대에서 바꾸면 바로 반영됩니다.</p>
+        <p class="note" style="margin-bottom:0">돌연변이율과 살아남는 비율은 진행 중에 바꿔도 다음 세대부터 적용됩니다. 집단 크기와 시드는 1세대에서 바꾸면 바로 반영됩니다.</p>
+
         <div class="legend" aria-label="범례">
           <span><i style="background:var(--skin)"></i>일반 세포(피부)</span>
           <span><i style="background:var(--muscle)"></i>수축 세포(심근)</span>
@@ -325,105 +314,118 @@ if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))
       </details>
     </aside>
 
-    <section class="card c-chart" aria-labelledby="h-chart">
-      <div class="card-h"><span class="tag">02</span><h2 id="h-chart">세대별 이동 점수</h2></div>
-      <p class="lgrow">
-        <span class="lg"><i style="border-color:var(--accent)"></i>최고 점수</span>
-        <span class="lg"><i class="dash" style="border-color:var(--muted)"></i>평균 점수</span>
-      </p>
-      <div class="plot"><canvas id="chart" role="img" aria-label="세대별 최고 점수와 평균 점수 그래프"></canvas></div>
-    </section>
-
-    <section class="card c-race" aria-labelledby="h-race">
-      <div class="card-h"><span class="tag">03</span><h2 id="h-race">최고 로봇 경주</h2></div>
-      <p class="sub">1세대 최고 로봇과 지금의 최고 로봇이 5초 동안 달립니다. 점수를 이동 속도로 가정했어요.</p>
-      <div class="race"><canvas id="race" role="img" aria-label="1세대 최고 로봇과 현재 최고 로봇의 경주"></canvas></div>
-      <div class="row-actions">
-        <button id="btnRace" class="btn accent" type="button">경주 시작</button>
-        <p class="note" id="raceNote"></p>
-      </div>
-    </section>
-
-    <section class="card c-cmp" aria-labelledby="h-cmp">
-      <div class="card-h"><span class="tag">04</span><h2 id="h-cmp">돌연변이율 비교 실험</h2></div>
-      <p class="sub">여러 돌연변이율로 같은 실험을 반복해서 평균을 냅니다. 모든 조건이 같은 시작 집단에서 출발하므로 공정하게 비교돼요. 집단 크기, 살아남는 비율, 목표 세대는 설정을 따릅니다.</p>
-      <div class="formgrid">
-        <div class="field">
-          <label for="cmpRates">비교할 돌연변이율(%)</label>
-          <input id="cmpRates" type="text" value="0, 1, 5, 15, 40" inputmode="decimal" autocomplete="off">
-          <small>쉼표로 구분하고 최대 6개까지 넣을 수 있어요.</small>
-        </div>
-        <div class="field">
-          <label for="cmpTrials">조건당 반복 횟수</label>
-          <input id="cmpTrials" type="number" min="5" max="100" step="5" value="30">
-          <small>&nbsp;</small>
-        </div>
-        <div class="field">
-          <button id="btnCmp" class="btn accent" type="button" style="min-height:42px">비교 실험 실행</button>
-          <small>&nbsp;</small>
-        </div>
-      </div>
-      <progress id="cmpProg" value="0" max="1" hidden></progress>
-      <p class="note" id="cmpMsg" role="status" aria-live="polite"></p>
-      <div id="cmpOut" hidden>
-        <p class="lgrow" id="cmpLegend" style="margin-top:14px"></p>
-        <div class="cmp-grid">
-          <div class="plot"><canvas id="cmp" role="img" aria-label="돌연변이율별 세대에 따른 평균 최고 점수 그래프"></canvas></div>
-          <div>
-            <div class="tablewrap">
-              <table>
-                <thead><tr><th scope="col">돌연변이율</th><th scope="col">10세대</th><th scope="col">30세대</th><th scope="col">마지막</th><th scope="col">표준편차</th></tr></thead>
-                <tbody id="cmpBody"></tbody>
-              </table>
-            </div>
-            <ul class="findings" id="cmpFind"></ul>
+    <main class="main" id="main">
+      <section aria-labelledby="h-pop">
+        <h2 id="h-pop">세대별 로봇 보기</h2>
+        <p class="sub">슬라이더를 움직이면 지나온 세대의 로봇 집단을 볼 수 있어요. 1세대와 지금 세대를 비교해 보세요. 점수가 높은 순서로 왼쪽 위부터 놓이고, 수축 세포(빨강)가 세대가 지날수록 왼쪽으로 모입니다.</p>
+        <div class="viewctl">
+          <div class="row"><label for="view">보고 있는 세대</label><output id="viewOut" for="view">1 / 1세대</output></div>
+          <input id="view" type="range" min="1" max="1" step="1" value="1" disabled>
+          <div class="viewbtns">
+            <button id="btnFirst" class="btn" type="button" disabled>1세대로</button>
+            <button id="btnPrev" class="btn" type="button" disabled>이전 세대</button>
+            <button id="btnNext" class="btn" type="button" disabled>다음 세대</button>
+            <button id="btnLatest" class="btn" type="button" disabled>최신 세대로</button>
           </div>
         </div>
-      </div>
-    </section>
+        <div class="dish">
+          <canvas id="dish" role="img" aria-label="현재 세대의 로봇 집단"></canvas>
+          <i class="scan" id="scan" aria-hidden="true"></i>
+        </div>
+        <p class="cap" id="dishCap"></p>
+      </section>
 
-    <section class="card c-rules rules" aria-labelledby="h-rules">
-      <div class="card-h"><span class="tag">05</span><h2 id="h-rules">이 시뮬레이터의 규칙</h2></div>
-      <div class="rules-grid">
-        <div class="rule">
-          <h3><span>A</span>진화가 일어나는 순서</h3>
-          <ol>
-            <li>무작위 로봇 집단을 만듭니다(1세대).</li>
-            <li>모든 로봇의 이동 점수를 계산합니다.</li>
-            <li>점수 상위 일부만 부모로 남기고 나머지는 버립니다(선택).</li>
-            <li>부모를 복사하면서 일부 칸을 무작위로 바꿔 자손을 만듭니다(유전과 변이). 그리고 2번으로 돌아갑니다.</li>
-          </ol>
+      <section aria-labelledby="h-chart">
+        <h2 id="h-chart">세대별 이동 점수</h2>
+        <p class="lgrow">
+          <span class="lg"><i style="border-color:var(--accent)"></i>최고 점수</span>
+          <span class="lg"><i class="dash" style="border-color:var(--muted)"></i>평균 점수</span>
+        </p>
+        <div class="plot"><canvas id="chart" role="img" aria-label="세대별 최고 점수와 평균 점수 그래프"></canvas></div>
+        <dl class="stats" aria-live="off">
+          <div><dt>세대</dt><dd id="stGen">1</dd></div>
+          <div><dt>최고 점수</dt><dd id="stBest">0.00</dd></div>
+          <div><dt>평균 점수</dt><dd id="stMean">0.00</dd></div>
+          <div><dt>1세대 최고 대비</dt><dd id="stRatio">-</dd></div>
+          <div><dt id="stCeilLbl">확인된 최고점</dt><dd id="stCeil">-</dd></div>
+        </dl>
+        <p class="note" id="ceilNote" style="margin-top:8px"></p>
+        <p class="note" id="status" role="status" aria-live="polite" style="margin-top:10px"></p>
+      </section>
+
+      <section aria-labelledby="h-race">
+        <h2 id="h-race">최고 로봇 경주</h2>
+        <p class="sub">1세대 최고 로봇과 지금의 최고 로봇이 5초 동안 달립니다. 점수를 이동 속도로 가정했어요.</p>
+        <div class="race"><canvas id="race" role="img" aria-label="1세대 최고 로봇과 현재 최고 로봇의 경주"></canvas></div>
+        <div class="row-actions">
+          <button id="btnRace" class="btn" type="button">경주 시작</button>
+          <p class="note" id="raceNote"></p>
         </div>
-        <div class="rule">
-          <h3><span>B</span>이동 점수 계산</h3>
-          <ul>
-            <li>수축 세포가 몸의 왼쪽에 몰려 있고 일반 세포가 오른쪽에 있을수록, 왼쪽에서 밀어 오른쪽으로 나아간다고 가정해서 점수가 높아집니다.</li>
-            <li>수축 세포가 <span id="ruleCap">8</span>개보다 적으면 힘이 약해 점수가 줄고, <span id="rulePen">10</span>개를 넘으면 에너지 낭비로 감점됩니다. 이 기준은 전체 칸 수의 32%와 40%라서, 몸 크기를 바꾸면 칸 수에 비례해 늘어납니다.</li>
-            <li>몸이 여러 조각으로 흩어져 있으면 가장 큰 덩어리의 비율만큼 점수가 줄어듭니다.</li>
-          </ul>
+      </section>
+
+      <section aria-labelledby="h-cmp">
+        <h2 id="h-cmp">돌연변이율 비교 실험</h2>
+        <p class="sub">여러 돌연변이율로 같은 실험을 반복해서 평균을 냅니다. 모든 조건이 같은 시작 집단에서 출발하므로 공정하게 비교돼요. 집단 크기, 살아남는 비율, 목표 세대는 왼쪽 설정을 따릅니다.</p>
+        <div class="formgrid">
+          <div class="field">
+            <label for="cmpRates">비교할 돌연변이율(%)</label>
+            <input id="cmpRates" type="text" value="0, 1, 5, 15, 40" inputmode="decimal" autocomplete="off">
+            <small>쉼표로 구분하고 최대 6개까지 넣을 수 있어요.</small>
+          </div>
+          <div class="field">
+            <label for="cmpTrials">조건당 반복 횟수</label>
+            <input id="cmpTrials" type="number" min="5" max="100" step="5" value="30">
+          </div>
+          <button id="btnCmp" class="btn primary" type="button" style="grid-column:auto">비교 실험 실행</button>
         </div>
-        <div class="rule">
-          <h3><span>C</span>환경 변화 실험</h3>
-          <ul>
-            <li>설정에서 켜면, 지정한 세대에서 목표 방향이 오른쪽에서 왼쪽으로 바뀝니다. 점수 식의 방향 부호만 뒤집는 것이라 나머지 규칙은 그대로예요.</li>
-            <li>기본 상태에서는 점수가 0 아래로 내려가지 않게 자르지만, 환경이 바뀐 뒤에는 자르지 않습니다. 자르면 집단 전체가 0점이 되어 어느 로봇이 더 나은지 구별할 수 없고, 선택이 멈추기 때문입니다.</li>
-            <li>이 실험은 “점수 식(가상 환경)이 바뀌면 이전의 적응이 무너진다”는 것을 보여 줍니다. 점수를 어떻게 정의하느냐가 결과를 좌우한다는 뜻이기도 해요.</li>
-          </ul>
+        <progress id="cmpProg" value="0" max="1" hidden></progress>
+        <p class="note" id="cmpMsg" role="status" aria-live="polite"></p>
+        <div id="cmpOut" hidden>
+          <p class="lgrow" id="cmpLegend" style="margin-top:14px"></p>
+          <div class="plot"><canvas id="cmp" role="img" aria-label="돌연변이율별 세대에 따른 평균 최고 점수 그래프"></canvas></div>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th scope="col">돌연변이율</th><th scope="col">10세대</th><th scope="col">30세대</th><th scope="col">마지막 세대</th><th scope="col">표준편차</th></tr></thead>
+              <tbody id="cmpBody"></tbody>
+            </table>
+          </div>
+          <ul class="findings" id="cmpFind"></ul>
         </div>
-        <div class="rule">
-          <h3><span>D</span>한계</h3>
-          <ul>
-            <li>실제 제노봇 연구는 물리 엔진으로 움직임을 계산하고 수백 개의 세포를 씁니다. 이 점수 규칙은 원리를 보려고 단순하게 정한 것이라 실제 물리와 다릅니다.</li>
-            <li>무엇이 좋은 형질인지 사람이 정했다는 점에서, 이 과정은 자연선택보다 인위선택에 가깝습니다.</li>
-            <li>5×5의 최고점은 가능한 모든 경우를 계산해서 확인한 값이지만, 6×6과 7×7은 오랜 탐색으로 찾은 값이라 더 높은 설계가 있을 수도 있어요.</li>
-            <li>결과는 이 모델에서만 성립합니다. 조건 사이의 차이가 표준편차보다 작으면 우연일 수 있어요.</li>
-          </ul>
-        </div>
-      </div>
-      <p class="foot">참고: Kriegman, Blackiston, Levin, Bongard (2020). A scalable pipeline for designing reconfigurable organisms. PNAS 117(4), 1853–1859.</p>
-    </section>
+      </section>
+
+      <section class="rules" aria-labelledby="h-rules">
+        <h2 id="h-rules">이 시뮬레이터의 규칙</h2>
+        <h3>진화가 일어나는 순서</h3>
+        <ol>
+          <li>무작위 로봇 집단을 만듭니다(1세대).</li>
+          <li>모든 로봇의 이동 점수를 계산합니다.</li>
+          <li>점수 상위 일부만 부모로 남기고 나머지는 버립니다(선택).</li>
+          <li>부모를 복사하면서 일부 칸을 무작위로 바꿔 자손을 만듭니다(유전과 변이). 그리고 2번으로 돌아갑니다.</li>
+        </ol>
+        <h3>이동 점수는 이렇게 계산해요</h3>
+        <ul>
+          <li>수축 세포가 몸의 왼쪽에 몰려 있고 일반 세포가 오른쪽에 있을수록, 왼쪽에서 밀어 오른쪽으로 나아간다고 가정해서 점수가 높아집니다.</li>
+          <li>수축 세포가 <span id="ruleCap">8</span>개보다 적으면 힘이 약해 점수가 줄고, <span id="rulePen">10</span>개를 넘으면 에너지 낭비로 감점됩니다. 이 기준은 전체 칸 수의 32%와 40%라서, 몸 크기를 바꾸면 칸 수에 비례해 늘어납니다.</li>
+          <li>몸이 여러 조각으로 흩어져 있으면 가장 큰 덩어리의 비율만큼 점수가 줄어듭니다.</li>
+        </ul>
+        <h3>환경 변화 실험</h3>
+        <ul>
+          <li>설정에서 켜면, 지정한 세대에서 목표 방향이 오른쪽에서 왼쪽으로 바뀝니다. 점수 식의 방향 부호만 뒤집는 것이라 나머지 규칙은 그대로예요.</li>
+          <li>기본 상태에서는 점수가 0 아래로 내려가지 않게 자르지만, 환경이 바뀐 뒤에는 자르지 않습니다. 자르면 집단 전체가 0점이 되어 어느 로봇이 더 나은지 구별할 수 없고, 선택이 멈추기 때문입니다.</li>
+          <li>이 실험은 “점수 식(가상 환경)이 바뀌면 이전의 적응이 무너진다”는 것을 보여 줍니다. 점수를 어떻게 정의하느냐가 결과를 좌우한다는 뜻이기도 해요.</li>
+        </ul>
+        <h3>한계</h3>
+        <ul>
+          <li>실제 제노봇 연구는 물리 엔진으로 움직임을 계산하고 수백 개의 세포를 씁니다. 이 점수 규칙은 원리를 보려고 단순하게 정한 것이라 실제 물리와 다릅니다.</li>
+          <li>무엇이 좋은 형질인지 사람이 정했다는 점에서, 이 과정은 자연선택보다 인위선택에 가깝습니다.</li>
+          <li>5×5의 최고점은 가능한 모든 경우를 계산해서 확인한 값이지만, 6×6과 7×7은 오랜 탐색으로 찾은 값이라 더 높은 설계가 있을 수도 있어요.</li>
+          <li>결과는 이 모델에서만 성립합니다. 조건 사이의 차이가 표준편차보다 작으면 우연일 수 있어요.</li>
+        </ul>
+        <p class="foot">참고: Kriegman, Blackiston, Levin, Bongard (2020). A scalable pipeline for designing reconfigurable organisms. PNAS 117(4), 1853–1859.</p>
+      </section>
+    </main>
   </div>
-</main>
+</div>
 
 <script>
 (function(){
@@ -599,7 +601,7 @@ function resetSim(){
 /* ============================================================
    3. 그리기 도구
    ============================================================ */
-var FONT='"Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+var FONT='"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
 function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
 function colors(){
   return {ink:cssv('--ink'),muted:cssv('--muted'),line:cssv('--line'),skin:cssv('--skin'),
@@ -1130,55 +1132,48 @@ setRunning(false);
 (function(){
 'use strict';
 var root=document.documentElement;
-var ok=(typeof anime==='function') && root.classList.contains('anim');
+var still=!root.classList.contains('anim');       // 움직임 줄이기 설정
+var ok=(typeof anime==='function') && !still;
 if(!ok) root.classList.remove('anim');
 function $(id){return document.getElementById(id);}
 function $$(s,el){return Array.prototype.slice.call((el||document).querySelectorAll(s));}
 function rnd(a,b){return a+Math.random()*(b-a);}
 function cssv(n){return getComputedStyle(root).getPropertyValue(n).trim();}
-
-/* --- 목표 세대까지 진행 막대 (움직임과 상관없이 동작) --- */
-var gen=$('stGen'), fill=$('goalFill'), goalTxt=$('goalTxt');
-function updateGoal(){
-  var g=parseInt(gen.textContent,10)||1, t=parseInt($('target').value,10)||100;
-  fill.style.width=Math.min(100,g/t*100)+'%';
-  goalTxt.textContent=g+' / '+t;
-}
-new MutationObserver(updateGoal).observe(gen,{childList:true,characterData:true,subtree:true});
-['input','change'].forEach(function(ev){ $('target').addEventListener(ev,updateGoal); $('targetRange').addEventListener(ev,updateGoal); });
-$$('.chip').forEach(function(c){ c.addEventListener('click',function(){ setTimeout(updateGoal,0); }); });
-updateGoal();
-
-/* --- 로고: 작은 제노봇 (4x4) --- */
-var LOGO=[2,2,1,1, 2,1,1,1, 2,2,1,1, 2,1,1,0], logo=$('logoBot'), cells=[];
-LOGO.forEach(function(v,k){
-  var r=document.createElementNS('http://www.w3.org/2000/svg','rect');
-  r.setAttribute('x',(k%4)*6); r.setAttribute('y',Math.floor(k/4)*6); r.setAttribute('width',5); r.setAttribute('height',5); r.setAttribute('rx',1.4);
-  r.setAttribute('fill',v===2?'var(--muscle)':(v===1?'var(--skin)':'transparent'));
-  logo.appendChild(r); cells.push(r);
-});
 if(!ok) return;
 
-anime({targets:cells,scale:[0,1],duration:700,delay:anime.stagger(40,{grid:[4,4],from:'first'}),easing:'easeOutBack',complete:function(){
-  anime({targets:cells.filter(function(_,k){return LOGO[k]===2;}),scaleX:[1,.6],direction:'alternate',loop:true,duration:420,easing:'easeInOutSine',
-    delay:function(el){ return (cells.indexOf(el)%4)*120; }});
-}});
+/* --- 제목 줄 --- */
+anime({targets:'.pagehead',opacity:[0,1],translateY:[12,0],duration:700,easing:'easeOutExpo',complete:function(){ var h=document.querySelector('.pagehead'); h.style.opacity=''; h.style.transform=''; document.querySelector('.pagehead').classList.add('in'); }});
 
-/* --- 결과 줄과 카드 등장 --- */
-anime({targets:'.kpis>div',opacity:[0,1],translateY:[16,0],duration:700,delay:anime.stagger(60,{start:100}),easing:'easeOutExpo',
-  complete:function(){ document.querySelector('.kpis').classList.add('in'); $$('.kpis>div').forEach(function(d){ d.style.transform=''; d.style.opacity=''; }); }});
-var parts=$$('.bento>.card');
+
+/* --- 스크롤 진행 막대 --- */
+var bar=$('scrollProg'), barQ=false;
+function setBar(){ barQ=false; var h=document.documentElement.scrollHeight-innerHeight; bar.style.transform='scaleX('+(h>0?pageYOffset/h:0)+')'; }
+addEventListener('scroll',function(){ if(!barQ){ barQ=true; requestAnimationFrame(setBar); } },{passive:true});
+
+/* --- 카드: 마우스 위치에 빛이 따라다닌다 --- */
+$$('.controls, .main section').forEach(function(card){
+  card.addEventListener('pointermove',function(e){
+    var r=card.getBoundingClientRect();
+    card.style.setProperty('--mx',(e.clientX-r.left)+'px'); card.style.setProperty('--my',(e.clientY-r.top)+'px');
+  });
+  card.addEventListener('pointerleave',function(){ card.style.removeProperty('--mx'); card.style.removeProperty('--my'); });
+});
+
+/* --- 스크롤하면 카드 속 요소들이 차례로 떠오른다 --- */
+var parts=$$('.controls, .main section');
 parts.forEach(function(el){ el.classList.add('reveal'); });
 function show(el,delay){
   var kids=Array.prototype.slice.call(el.children);
-  anime({targets:kids,opacity:[0,1],translateY:[24,0],duration:800,easing:'easeOutExpo',delay:anime.stagger(60,{start:delay||0}),
+  anime({targets:kids,opacity:[0,1],translateY:[34,0],duration:900,easing:'easeOutExpo',delay:anime.stagger(70,{start:delay||0}),
     complete:function(){ el.classList.remove('reveal'); kids.forEach(function(k){ k.style.transform=''; k.style.opacity=''; }); }});
+  var h=el.querySelector('h2');
+  if(h) anime({targets:h,letterSpacing:['.2em','-.02em'],duration:1000,delay:delay||0,easing:'easeOutExpo',complete:function(){ h.style.letterSpacing=''; }});
 }
 if('IntersectionObserver' in window){
   var io=new IntersectionObserver(function(es){
     var n=0;
-    es.forEach(function(e){ if(e.isIntersecting){ io.unobserve(e.target); show(e.target,(n++)*90+150); } });
-  },{threshold:0.05});
+    es.forEach(function(e){ if(e.isIntersecting){ io.unobserve(e.target); show(e.target,(n++)*120); } });
+  },{threshold:0.06});
   parts.forEach(function(el){ io.observe(el); });
 } else parts.forEach(function(el){ show(el); });
 
@@ -1191,7 +1186,7 @@ document.addEventListener('pointerdown',function(e){
     var r=b.getBoundingClientRect(), s=document.createElement('span');
     s.className='ripple'; s.style.left=(e.clientX-r.left)+'px'; s.style.top=(e.clientY-r.top)+'px';
     b.appendChild(s);
-    anime({targets:s,scale:[0,Math.max(r.width,r.height)/5],opacity:[.3,0],duration:650,easing:'easeOutQuad',complete:function(){ s.remove(); }});
+    anime({targets:s,scale:[0,Math.max(r.width,r.height)/5],opacity:[.35,0],duration:700,easing:'easeOutQuad',complete:function(){ s.remove(); }});
   }
 });
 function release(e){
@@ -1201,64 +1196,58 @@ function release(e){
 document.addEventListener('pointerup',release);
 document.addEventListener('pointerout',release);
 
-/* --- 설정 값이 바뀌면 숫자가 톡 --- */
-$$('output').forEach(function(o){
-  new MutationObserver(function(){ anime.remove(o); anime({targets:o,scale:[1.2,1],duration:350,easing:'easeOutQuad'}); }).observe(o,{childList:true});
-  o.style.display='inline-block';
-});
-
-/* --- 꽃가루 --- */
+/* --- 꽃가루 터뜨리기 --- */
 function confetti(x,y,count){
   var cols=[cssv('--skin'),cssv('--muscle'),cssv('--accent'),cssv('--best')];
   for(var i=0;i<(count||36);i++){
-    (function(i){
+    (function(){
       var p=document.createElement('i'); p.className='confetti';
       p.style.background=cols[i%4]; p.style.left=x+'px'; p.style.top=y+'px';
       if(i%3===0) p.style.borderRadius='50%';
       document.body.appendChild(p);
-      var ang=rnd(-Math.PI,0), dist=rnd(80,240);
+      var ang=rnd(-Math.PI,0), dist=rnd(80,260);
       anime.timeline({complete:function(){ p.remove(); }})
         .add({targets:p,translateX:Math.cos(ang)*dist,translateY:Math.sin(ang)*dist,rotate:rnd(-540,540),scale:[0,rnd(.8,1.5)],duration:rnd(600,900),easing:'easeOutCirc'})
         .add({targets:p,translateY:'+='+rnd(120,240),opacity:0,duration:rnd(700,1100),easing:'easeInQuad'});
-    })(i);
+    })();
   }
 }
 function burstAt(el,n){ var r=el.getBoundingClientRect(); confetti(r.left+r.width/2,r.top+r.height/2,n); }
 
-/* --- 최고 점수가 오르면 칸이 반짝 --- */
+/* --- 최고 점수가 오르면 타일이 톡 튄다 --- */
 var best=$('stBest'), prev=parseFloat(best.textContent)||0, bumping=false, bumpT=null;
 new MutationObserver(function(){
   var v=parseFloat(best.textContent);
   if(isFinite(v) && v>prev+1e-9 && !bumping){
     bumping=true;
     var tile=best.parentNode; tile.classList.add('bump');
-    clearTimeout(bumpT); bumpT=setTimeout(function(){ tile.classList.remove('bump'); },500);
-    anime({targets:best,scale:[1.2,1],translateY:[-3,0],duration:520,easing:'easeOutBack',complete:function(){ bumping=false; }});
+    clearTimeout(bumpT); bumpT=setTimeout(function(){ tile.classList.remove('bump'); },700);
+    anime({targets:best,scale:[1.25,1],translateY:[-4,0],duration:560,easing:'easeOutBack',complete:function(){ bumping=false; }});
   }
   prev=isFinite(v)?v:prev;
 }).observe(best,{childList:true,characterData:true,subtree:true});
 
-/* --- 세대가 바뀌면 스캔선이 로봇 집단을 훑는다 --- */
-var scan=$('scan'), lastScan=0;
+/* --- 세대가 바뀌면 현미경 스캔선이 로봇 집단을 훑는다 --- */
+var scan=$('scan'), lastScan=0, gen=$('stGen');
 new MutationObserver(function(){
   var now=performance.now(); if(now-lastScan<900) return; lastScan=now;
   var h=scan.parentNode.clientHeight;
   anime.remove(scan);
-  anime({targets:scan,translateY:[-80,h],opacity:[{value:1,duration:100},{value:1,duration:500},{value:0,duration:200}],duration:800,easing:'easeInOutSine'});
+  anime({targets:scan,translateY:[-90,h],opacity:[{value:1,duration:100},{value:1,duration:500},{value:0,duration:200}],duration:800,easing:'easeInOutSine'});
 }).observe(gen,{childList:true,characterData:true,subtree:true});
 
-/* --- 안내 문장, 표, 결과 목록 --- */
+/* --- 안내 문장, 표, 결과 목록이 새로 채워질 때 --- */
 function onFill(el,fn){ new MutationObserver(function(){ if(el.textContent.trim()) fn(el); }).observe(el,{childList:true}); }
-function fadeIn(el){ anime.remove(el); anime({targets:el,opacity:[0,1],translateY:[6,0],duration:500,easing:'easeOutExpo'}); }
+function fadeIn(el){ anime.remove(el); anime({targets:el,opacity:[0,1],translateY:[8,0],duration:600,easing:'easeOutExpo'}); }
 onFill($('status'),function(el){
   fadeIn(el);
-  if(el.textContent.indexOf('도달해서 멈췄어요')>=0) burstAt(best,44);
+  if(el.textContent.indexOf('도달해서 멈췄어요')>=0) burstAt($('stBest'),48);
 });
 onFill($('raceNote'),function(el){
   fadeIn(el);
   if(el.textContent.indexOf('배 멀리')>=0){ var r=$('race').getBoundingClientRect(); confetti(r.right-40,r.top+r.height*.7,40); }
 });
-function stagger(el){ anime({targets:el.children,opacity:[0,1],translateX:[-16,0],duration:600,easing:'easeOutExpo',delay:anime.stagger(70)}); }
+function stagger(el){ anime({targets:el.children,opacity:[0,1],translateX:[-20,0],duration:700,easing:'easeOutExpo',delay:anime.stagger(80)}); }
 onFill($('cmpBody'),stagger);
 onFill($('cmpFind'),stagger);
 })();
